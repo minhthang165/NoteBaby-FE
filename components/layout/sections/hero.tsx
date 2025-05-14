@@ -14,18 +14,19 @@ export const HeroSection = () => {
         <div className="text-center space-y-8">
           <Badge variant="outline" className="text-sm py-2">
             <span className="mr-2 text-primary">
-              <Badge>New</Badge>
+              <Badge>Mới</Badge>
             </span>
-            <span> Design is out now! </span>
+            <span> Hãy bắt đầu trải nghiệm nào </span>
           </Badge>
 
           <div className="max-w-screen-md mx-auto text-center text-4xl md:text-6xl font-bold">
             <h1>
-              Experience the
+              Trải nghiệm với
               <span className="text-transparent px-2 bg-gradient-to-r from-[#D247BF] to-primary bg-clip-text">
-                Shadcn
+                NextEdu
               </span>
-              landing page
+              <br/>
+              Nơi nâng tầm trí tuệ
             </h1>
           </div>
 
@@ -36,7 +37,7 @@ export const HeroSection = () => {
 
           <div className="space-y-4 md:space-y-0 md:space-x-4">
             <Button className="w-5/6 md:w-1/4 font-bold group/arrow">
-              Get Started
+              Bắt đầu
               <ArrowRight className="size-5 ml-2 group-hover/arrow:translate-x-1 transition-transform" />
             </Button>
 
@@ -49,7 +50,7 @@ export const HeroSection = () => {
                 href="https://github.com/nobruf/shadcn-landing-page.git"
                 target="_blank"
               >
-                Github respository
+                Thông tin
               </Link>
             </Button>
           </div>
