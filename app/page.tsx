@@ -44,15 +44,15 @@ export default function Home() {
     <>
       <HeroSection />
       <SponsorsSection />
-      <BenefitsSection />
+      {/* <BenefitsSection /> */}
       <FeaturesSection />
-      <ServicesSection />
+      {/* <ServicesSection /> */}
       <TestimonialSection />
       <TeamSection />
-      <CommunitySection />
+      {/* <CommunitySection /> */}
       <PricingSection />
-      <ContactSection />
       <FAQSection />
+      <ContactSection />
       <FooterSection />
     </>
   );

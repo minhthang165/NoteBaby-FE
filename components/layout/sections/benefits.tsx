@@ -43,12 +43,10 @@ export const BenefitsSection = () => {
           <h2 className="text-lg text-primary mb-2 tracking-wider">Benefits</h2>
 
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Your Shortcut to Success
+            Giải pháp toàn diện cho trung tâm giáo dục
           </h2>
           <p className="text-xl text-muted-foreground mb-8">
-            Lorem ipsum dolor sit amet consectetur, adipisicing elit. Non
-            ducimus reprehenderit architecto rerum similique facere odit
-            deleniti necessitatibus quo quae.
+            Nền tảng của chúng tôi cung cấp đầy đủ các công cụ cần thiết để quản lý hiệu quả mọi hoạt động của trung tâm giảng dạy.
           </p>
         </div>
 

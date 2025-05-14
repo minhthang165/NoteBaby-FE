@@ -31,8 +31,7 @@ export const HeroSection = () => {
           </div>
 
           <p className="max-w-screen-sm mx-auto text-xl text-muted-foreground">
-            {`We're more than just a tool, we're a community of passionate
-            creators. Get access to exclusive resources, tutorials, and support.`}
+            {`Chúng tôi không chỉ là một công cụ, chúng tôi là một cộng đồng những người sáng tạo đầy nhiệt huyết. Truy cập vào các nguồn tài nguyên, hướng dẫn và hỗ trợ độc quyền`}
           </p>
 
           <div className="space-y-4 md:space-y-0 md:space-x-4">

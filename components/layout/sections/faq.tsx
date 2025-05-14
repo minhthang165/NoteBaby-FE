@@ -52,7 +52,7 @@ export const FAQSection = () => {
         </h2>
 
         <h2 className="text-3xl md:text-4xl text-center font-bold">
-          Common Questions
+          Câu hỏi thường gặp
         </h2>
       </div>
 

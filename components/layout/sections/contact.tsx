@@ -63,48 +63,47 @@ export const ContactSection = () => {
         <div>
           <div className="mb-4">
             <h2 className="text-lg text-primary mb-2 tracking-wider">
-              Contact
+              Liên hệ
             </h2>
 
-            <h2 className="text-3xl md:text-4xl font-bold">Connect With Us</h2>
+            <h2 className="text-3xl md:text-4xl font-bold">Liên hệ với chúng tôi</h2>
           </div>
           <p className="mb-8 text-muted-foreground lg:w-5/6">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptatum
-            ipsam sint enim exercitationem ex autem corrupti quas tenetur
+            NextEducation cung cấp các cách liên hệ khách hàng cá nhân và doanh nghiệp, khách hàng ưu tiên, bao gồm qua hotline,nhắn tin trực tiếp
           </p>
 
           <div className="flex flex-col gap-4">
             <div>
               <div className="flex gap-2 mb-1">
                 <Building2 />
-                <div className="font-bold">Find us</div>
+                <div className="font-bold">Địa điểm</div>
               </div>
 
-              <div>742 Evergreen Terrace, Springfield, IL 62704</div>
+              <div>FPT University, Phường Hòa Hải, Quận Ngũ Hành Sơn, Thành phố Đà Nẵng</div>
             </div>
 
             <div>
               <div className="flex gap-2 mb-1">
                 <Phone />
-                <div className="font-bold">Call us</div>
+                <div className="font-bold">Số điện thoại</div>
               </div>
 
-              <div>+1 (619) 123-4567</div>
+              <div>+84 123 456 789</div>
             </div>
 
             <div>
               <div className="flex gap-2 mb-1">
                 <Mail />
-                <div className="font-bold">Mail US</div>
+                <div className="font-bold">Email</div>
               </div>
 
-              <div>leomirandadev@gmail.com</div>
+              <div>nguyenminhthang.dev@gmail.com</div>
             </div>
 
             <div>
               <div className="flex gap-2">
                 <Clock />
-                <div className="font-bold">Visit us</div>
+                <div className="font-bold">Thời gian làm việc</div>
               </div>
 
               <div>

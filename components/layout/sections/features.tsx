@@ -10,40 +10,40 @@ interface FeaturesProps {
 
 const featureList: FeaturesProps[] = [
   {
-    icon: "TabletSmartphone",
-    title: "Mobile Friendly",
+    icon: "Users",
+    title: "Quản lý học viên",
     description:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. A odio velit cum aliquam, consectetur.",
+      "Theo dõi thông tin học viên, lịch sử học tập, kết quả và tiến độ học tập.",
   },
   {
-    icon: "BadgeCheck",
-    title: "Social Proof",
+    icon: "BookOpen",
+    title: "Quản lý khóa học",
     description:
-      "Lorem ipsum dolor sit amet consectetur. Natus consectetur, odio ea accusamus aperiam.",
+      "Tạo và quản lý các khóa học, lịch học, tài liệu giảng dạy và bài tập.",
   },
   {
-    icon: "Goal",
-    title: "Targeted Content",
+    icon: "CalendarClock",
+    title: "Lịch giảng dạy",
     description:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. odio ea accusamus aperiam.",
+      "Sắp xếp lịch giảng dạy cho giáo viên, phòng học và theo dõi thời gian biểu.",
   },
   {
-    icon: "PictureInPicture",
-    title: "Strong Visuals",
+    icon: "BarChart3",
+    title: "Báo cáo thống kê",
     description:
-      "Lorem elit. A odio velit cum aliquam. Natus consectetur dolores, odio ea accusamus aperiam.",
+      "Tạo báo cáo về tình hình học tập, tài chính và hiệu quả giảng dạy.",
   },
   {
-    icon: "MousePointerClick",
-    title: "Clear CTA",
+    icon: "FileText",
+    title: "Quản lý tài liệu",
     description:
-      "Lorem ipsum dolor sit amet consectetur adipisicing. odio ea accusamus consectetur.",
+      "Lưu trữ và chia sẻ tài liệu giảng dạy, bài giảng và tài nguyên học tập.",
   },
   {
-    icon: "Newspaper",
-    title: "Clear Headline",
+    icon: "MessageSquare",
+    title: "Giao tiếp nội bộ",
     description:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. A odio velit cum aliquam. Natus consectetur.",
+      "Hệ thống tin nhắn và thông báo giữa giáo viên, học viên và quản lý.",
   },
 ];
 
@@ -51,17 +51,15 @@ export const FeaturesSection = () => {
   return (
     <section id="features" className="container py-24 sm:py-32">
       <h2 className="text-lg text-primary text-center mb-2 tracking-wider">
-        Features
+        Tính năng
       </h2>
 
       <h2 className="text-3xl md:text-4xl text-center font-bold mb-4">
-        What Makes Us Different
+        Giải pháp toàn diện cho trung tâm giáo dục
       </h2>
 
       <h3 className="md:w-1/2 mx-auto text-xl text-center text-muted-foreground mb-8">
-        Lorem ipsum dolor, sit amet consectetur adipisicing elit. Voluptatem
-        fugiat, odit similique quasi sint reiciendis quidem iure veritatis optio
-        facere tenetur.
+        Nền tảng của chúng tôi cung cấp đầy đủ các công cụ cần thiết để quản lý hiệu quả mọi hoạt động của trung tâm giảng dạy.
       </h3>
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
