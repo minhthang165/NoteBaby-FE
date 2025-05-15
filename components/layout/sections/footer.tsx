@@ -16,85 +16,64 @@ export const FooterSection = () => {
           </div>
 
           <div className="flex flex-col gap-2">
-            <h3 className="font-bold text-lg">Contact</h3>
+            <h3 className="font-bold text-lg">Sản phẩm</h3>
             <div>
               <Link href="#" className="opacity-60 hover:opacity-100">
-                Github
+                Tính năng
               </Link>
             </div>
 
             <div>
               <Link href="#" className="opacity-60 hover:opacity-100">
-                Twitter
+                Bảng giá
               </Link>
             </div>
 
             <div>
               <Link href="#" className="opacity-60 hover:opacity-100">
-                Instagram
-              </Link>
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <h3 className="font-bold text-lg">Platforms</h3>
-            <div>
-              <Link href="#" className="opacity-60 hover:opacity-100">
-                iOS
-              </Link>
-            </div>
-
-            <div>
-              <Link href="#" className="opacity-60 hover:opacity-100">
-                Android
-              </Link>
-            </div>
-
-            <div>
-              <Link href="#" className="opacity-60 hover:opacity-100">
-                Web
+                Hướng dẫn sử dụng
               </Link>
             </div>
           </div>
 
           <div className="flex flex-col gap-2">
-            <h3 className="font-bold text-lg">Help</h3>
+            <h3 className="font-bold text-lg">Công ty</h3>
             <div>
               <Link href="#" className="opacity-60 hover:opacity-100">
-                Contact Us
+                Về chúng tôi
               </Link>
             </div>
 
             <div>
               <Link href="#" className="opacity-60 hover:opacity-100">
-                FAQ
+                Tuyển dụng
               </Link>
             </div>
 
             <div>
               <Link href="#" className="opacity-60 hover:opacity-100">
-                Feedback
+                Đối tác
               </Link>
             </div>
           </div>
 
           <div className="flex flex-col gap-2">
-            <h3 className="font-bold text-lg">Socials</h3>
+            <h3 className="font-bold text-lg">Hỗ trợ</h3>
             <div>
               <Link href="#" className="opacity-60 hover:opacity-100">
-                Twitch
+                Liên hệ
               </Link>
             </div>
 
             <div>
               <Link href="#" className="opacity-60 hover:opacity-100">
-                Discord
+                Trung tâm hỗ trợ
               </Link>
             </div>
 
             <div>
               <Link href="#" className="opacity-60 hover:opacity-100">
-                Dribbble
+                Chính sách bảo mật
               </Link>
             </div>
           </div>
@@ -103,13 +82,12 @@ export const FooterSection = () => {
         <Separator className="my-6" />
         <section className="">
           <h3 className="">
-            &copy; 2024 Designed and developed by
+            &copy; 2025 NextEducation. All rights reserved.
             <Link
               target="_blank"
               href="https://github.com/leoMirandaa"
               className="text-primary transition-all border-primary hover:border-b-2 ml-1"
             >
-              Leo Miranda
             </Link>
           </h3>
         </section>

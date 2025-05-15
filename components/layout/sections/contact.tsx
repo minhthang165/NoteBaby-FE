@@ -69,7 +69,7 @@ export const ContactSection = () => {
             <h2 className="text-3xl md:text-4xl font-bold">Liên hệ với chúng tôi</h2>
           </div>
           <p className="mb-8 text-muted-foreground lg:w-5/6">
-            NextEducation cung cấp các cách liên hệ khách hàng cá nhân và doanh nghiệp, khách hàng ưu tiên, bao gồm qua hotline,nhắn tin trực tiếp
+            NextEducation cung cấp các cách liên hệ khách hàng cá nhân và doanh nghiệp, khách hàng ưu tiên, bao gồm qua hotline, nhắn tin trực tiếp
           </p>
 
           <div className="flex flex-col gap-4">
@@ -128,9 +128,9 @@ export const ContactSection = () => {
                     name="firstName"
                     render={({ field }) => (
                       <FormItem className="w-full">
-                        <FormLabel>First Name</FormLabel>
+                        <FormLabel>Họ</FormLabel>
                         <FormControl>
-                          <Input placeholder="Leopoldo" {...field} />
+                          <Input placeholder="Nguyễn Minh" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -141,9 +141,9 @@ export const ContactSection = () => {
                     name="lastName"
                     render={({ field }) => (
                       <FormItem className="w-full">
-                        <FormLabel>Last Name</FormLabel>
+                        <FormLabel>Tên</FormLabel>
                         <FormControl>
-                          <Input placeholder="Miranda" {...field} />
+                          <Input placeholder="Thắng" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -161,7 +161,7 @@ export const ContactSection = () => {
                         <FormControl>
                           <Input
                             type="email"
-                            placeholder="leomirandadev@gmail.com"
+                            placeholder="nguyenminhthang.dev@gmail.com"
                             {...field}
                           />
                         </FormControl>
@@ -177,7 +177,7 @@ export const ContactSection = () => {
                     name="subject"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Subject</FormLabel>
+                        <FormLabel>Môn học</FormLabel>
                         <Select
                           onValueChange={field.onChange}
                           defaultValue={field.value}
@@ -188,18 +188,18 @@ export const ContactSection = () => {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="Web Development">
-                              Web Development
+                            <SelectItem value="Math">
+                              Toán
                             </SelectItem>
-                            <SelectItem value="Mobile Development">
-                              Mobile Development
+                            <SelectItem value="Physics">
+                              Lý
                             </SelectItem>
-                            <SelectItem value="Figma Design">
-                              Figma Design
+                            <SelectItem value="Chemistry">Hóa</SelectItem>
+                            <SelectItem value="English">
+                              Tiếng Anh
                             </SelectItem>
-                            <SelectItem value="REST API">REST API</SelectItem>
-                            <SelectItem value="FullStack Project">
-                              FullStack Project
+                            <SelectItem value="Dev">
+                              Lập Trình (Web, Mobile, Backend, Frontend)
                             </SelectItem>
                           </SelectContent>
                         </Select>
@@ -215,11 +215,11 @@ export const ContactSection = () => {
                     name="message"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Message</FormLabel>
+                        <FormLabel>Lời nhắn</FormLabel>
                         <FormControl>
                           <Textarea
                             rows={5}
-                            placeholder="Your message..."
+                            placeholder="Nhap nội dung ở đây nè"
                             className="resize-none"
                             {...field}
                           />
@@ -231,7 +231,7 @@ export const ContactSection = () => {
                   />
                 </div>
 
-                <Button className="mt-4">Send message</Button>
+                <Button className="mt-4">Gửi</Button>
               </form>
             </Form>
           </CardContent>

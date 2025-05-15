@@ -43,12 +43,12 @@ const routeList: RouteProps[] = [
     label: "Đội ngũ",
   },
   {
-    href: "#contact",
-    label: "Liên hệ",
-  },
-  {
     href: "#faq",
     label: "FAQ",
+  },
+  {
+    href: "#contact",
+    label: "Liên hệ",
   },
 ];
 

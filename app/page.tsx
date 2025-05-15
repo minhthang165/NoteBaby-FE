@@ -13,26 +13,26 @@ import { TestimonialSection } from "@/components/layout/sections/testimonial";
 
 export const metadata = {
   title: "NextEducation – Learn Smart, Rise Fast.",
-  description: "Free Shadcn landing page for developers",
+  description: "Guiding Students to Academic Success.",
   openGraph: {
     type: "website",
     url: "https://github.com/nobruf/shadcn-landing-page.git",
-    title: "Shadcn - Landing template",
-    description: "Free Shadcn landing page for developers",
+    title: "NextEducation – Learn Smart, Rise Fast.",
+    description: "Guiding Students to Academic Success.",
     images: [
       {
         url: "https://res.cloudinary.com/dbzv9xfjp/image/upload/v1723499276/og-images/shadcn-vue.jpg",
         width: 1200,
         height: 630,
-        alt: "Shadcn - Landing template",
+        alt: "NextEducation – Learn Smart, Rise Fast.",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
     site: "https://github.com/nobruf/shadcn-landing-page.git",
-    title: "Shadcn - Landing template",
-    description: "Free Shadcn landing page for developers",
+    title: "NextEducation – Learn Smart, Rise Fast.",
+    description: "Guiding Students to Academic Success.",
     images: [
       "https://res.cloudinary.com/dbzv9xfjp/image/upload/v1723499276/og-images/shadcn-vue.jpg",
     ],
