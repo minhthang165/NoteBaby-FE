@@ -22,11 +22,12 @@ export default function AboutUsPage() {
                 Sứ mệnh của chúng tôi
               </div>
               <h2 className="text-3xl font-bold tracking-tighter md:text-4xl text-black">
-                Trao quyền cho thế hệ lập trình viên tương lai
+                Mỗi đứa trẻ là một phép màu nhỏ bé, và mỗi khoảnh khắc cùng con đều vô giá.
               </h2>
               <p className="text-gray-800 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                NextEducation được thành lập với mục tiêu cung cấp giáo dục lập trình chất lượng cao, giúp học viên phát
-                triển kỹ năng cần thiết để thành công trong ngành công nghệ thông tin.
+                NoteBaby ra đời từ những trang nhật ký đầu tiên của một người mẹ trẻ – người luôn sợ rằng mình sẽ quên mất
+                nụ cười đầu tiên của con, tiếng gọi “mẹ” đầu đời, hay lần bé chập chững những bước đi đầu tiên. Những khoảnh
+                khắc ấy không thể quay lại, và chúng xứng đáng được lưu giữ trọn vẹn.
               </p>
             </div>
             <div className="space-y-4">
@@ -34,9 +35,9 @@ export default function AboutUsPage() {
                 <Card>
                   <CardContent className="p-6 flex flex-col items-center text-center space-y-2">
                     <Lightbulb className="h-10 w-10 text-primary" />
-                    <h3 className="text-xl font-bold text-black">Đổi mới</h3>
+                    <h3 className="text-xl font-bold text-black">Lưu giữ</h3>
                     <p className="text-sm text-gray-800">
-                      Luôn cập nhật với công nghệ mới nhất và phương pháp giảng dạy hiện đại
+                      Ghi chú hành trình lớn khôn của bé bằng hình ảnh, video và câu chuyện đầy cảm xúc.
                     </p>
                   </CardContent>
                 </Card>
@@ -45,25 +46,25 @@ export default function AboutUsPage() {
                     <Users className="h-10 w-10 text-primary" />
                     <h3 className="text-xl font-bold text-black">Cộng đồng</h3>
                     <p className="text-sm text-gray-800">
-                      Xây dựng môi trường học tập hỗ trợ và cộng đồng lập trình viên
+                      Kết nối với các cha mẹ khác để cùng sẻ chia kinh nghiệm, niềm vui và lời khuyên hữu ích.
                     </p>
                   </CardContent>
                 </Card>
                 <Card>
                   <CardContent className="p-6 flex flex-col items-center text-center space-y-2">
                     <Award className="h-10 w-10 text-primary" />
-                    <h3 className="text-xl font-bold text-black">Chất lượng</h3>
+                    <h3 className="text-xl font-bold text-black">Theo dõi</h3>
                     <p className="text-sm text-gray-800">
-                      Cam kết cung cấp nội dung giảng dạy chất lượng cao và trải nghiệm học tập xuất sắc
+                      Theo dõi tăng trưởng, lịch tiêm chủng, giấc ngủ và sức khỏe của bé một cách khoa học.
                     </p>
                   </CardContent>
                 </Card>
                 <Card>
                   <CardContent className="p-6 flex flex-col items-center text-center space-y-2">
                     <BookOpen className="h-10 w-10 text-primary" />
-                    <h3 className="text-xl font-bold text-black">Thực tiễn</h3>
+                    <h3 className="text-xl font-bold text-black">Kiến thức</h3>
                     <p className="text-sm text-gray-800">
-                      Tập trung vào kỹ năng thực tế và kiến thức áp dụng được trong công việc
+                      Truy cập thư viện bài viết, video và tài liệu chuyên sâu từ chuyên gia nuôi dạy trẻ.
                     </p>
                   </CardContent>
                 </Card>
@@ -71,7 +72,8 @@ export default function AboutUsPage() {
             </div>
           </div>
         </div>
-      </section>
+    </section>
+
 
       {/* Our Programs */}
       <section className="w-full py-12 md:py-24 lg:py-32 bg-white">
@@ -79,14 +81,13 @@ export default function AboutUsPage() {
           <div className="flex flex-col items-center justify-center space-y-4 text-center">
             <div className="space-y-2">
               <div className="inline-block rounded-lg bg-primary/20 px-3 py-1 text-sm text-black">
-                Chương trình đào tạo
+                Tính năng nổi bật
               </div>
               <h2 className="text-3xl font-bold tracking-tighter md:text-4xl text-black">
-                Khóa học đa dạng cho mọi nhu cầu
+                Hỗ trợ cha mẹ từ những điều nhỏ nhất
               </h2>
               <p className="mx-auto max-w-[700px] text-gray-800 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                NextEducation cung cấp nhiều khóa học lập trình từ cơ bản đến nâng cao, phù hợp với mọi đối tượng từ
-                người mới bắt đầu đến chuyên gia.
+                 NoteBaby giúp bạn đồng hành cùng con bằng cách lưu giữ kỷ niệm, theo dõi phát triển và tiếp cận nguồn tài nguyên đáng tin cậy.
               </p>
             </div>
           </div>
@@ -127,39 +128,39 @@ export default function AboutUsPage() {
           <div className="flex flex-col items-center justify-center space-y-4 text-center">
             <div className="space-y-2">
               <div className="inline-block rounded-lg bg-primary/20 px-3 py-1 text-sm text-black">
-                Phương pháp giảng dạy
+                Phương pháp chăm sóc
               </div>
               <h2 className="text-3xl font-bold tracking-tighter md:text-4xl text-black">
-                Cách chúng tôi đào tạo lập trình viên giỏi
+                Cách NoteBaby hỗ trợ mẹ và bé toàn diện
               </h2>
               <p className="mx-auto max-w-[700px] text-gray-800 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                Phương pháp giảng dạy độc đáo của NextEducation kết hợp lý thuyết với thực hành, giúp học viên nhanh
-                chóng áp dụng kiến thức vào dự án thực tế.
+                Phương pháp chăm sóc của NoteBaby kết hợp giữa kiến thức y khoa, công nghệ và sự thấu cảm để đồng hành cùng hành trình làm mẹ một cách thông minh và an toàn.
               </p>
             </div>
           </div>
           <div className="mx-auto max-w-5xl py-12">
             <Tabs defaultValue="practice" className="w-full">
               <TabsList className="grid w-full grid-cols-4">
-                <TabsTrigger value="practice">Thực hành</TabsTrigger>
-                <TabsTrigger value="projects">Mock Interview</TabsTrigger>
-                <TabsTrigger value="mentoring">Mentoring</TabsTrigger>
-                <TabsTrigger value="community">Cộng đồng</TabsTrigger>
+                <TabsTrigger value="practice">Theo dõi sức khỏe</TabsTrigger>
+                <TabsTrigger value="projects">Tư vấn cá nhân</TabsTrigger>
+                <TabsTrigger value="mentoring">Chuyên gia đồng hành</TabsTrigger>
+                <TabsTrigger value="community">Cộng đồng mẹ bầu</TabsTrigger>
               </TabsList>
+
+              {/* Theo dõi sức khỏe */}
               <TabsContent value="practice" className="p-6 bg-white rounded-lg mt-6">
                 <div className="flex flex-col md:flex-row gap-6 items-center">
                   <div className="md:w-1/2">
-                    <h3 className="text-2xl font-bold mb-4 text-black">Học thông qua thực hành</h3>
+                    <h3 className="text-2xl font-bold mb-4 text-black">Theo dõi sức khỏe mẹ & bé</h3>
                     <p className="text-gray-800 mb-4">
-                      Chúng tôi tin rằng cách tốt nhất để học lập trình là thực hành. Học viên tại NextEducation dành
-                      70% thời gian để thực hành code và giải quyết các bài tập thực tế.
+                      NoteBaby cung cấp công cụ thông minh để mẹ theo dõi thai kỳ, lịch tiêm chủng, cử động thai và các chỉ số sức khỏe của bé một cách khoa học.
                     </p>
                     <ul className="space-y-2">
                       {[
-                        "Bài tập thực hành sau mỗi bài giảng",
-                        "Coding challenges hàng tuần",
-                        "Phòng lab với môi trường phát triển chuyên nghiệp",
-                        "Code reviews từ giảng viên",
+                        "Lịch tiêm chủng tự động",
+                        "Theo dõi cân nặng, chiều cao, vòng đầu",
+                        "Gợi ý thực đơn dinh dưỡng mỗi giai đoạn",
+                        "Biểu đồ phát triển trực quan",
                       ].map((item, i) => (
                         <li key={i} className="flex items-start">
                           <CheckCircle2 className="h-5 w-5 text-primary mr-2 mt-0.5" />
@@ -170,26 +171,29 @@ export default function AboutUsPage() {
                   </div>
                   <div className="md:w-1/2">
                     <img
-                      src="/students-practicing-coding.png?height=300&width=400"
-                      alt="Students practicing coding"
+                      src="/health-tracking.jpg?height=300&width=400"
+                      alt="Health tracking on NoteBaby"
                       className="rounded-lg object-cover w-full h-auto"
+                      loading="lazy"
                     />
                   </div>
                 </div>
               </TabsContent>
+
+              {/* Tư vấn cá nhân */}
               <TabsContent value="projects" className="p-6 bg-white rounded-lg mt-6">
                 <div className="flex flex-col md:flex-row gap-6 items-center">
                   <div className="md:w-1/2">
-                    <h3 className="text-2xl font-bold mb-4 text-black">Mock Interview</h3>
+                    <h3 className="text-2xl font-bold mb-4 text-black">Tư vấn cá nhân 1:1</h3>
                     <p className="text-gray-800 mb-4">
-                      Dịch vụ mock interview không chỉ giúp developer chuẩn bị tốt hơn cho phỏng vấn, mà còn là một công cụ hữu ích để phát triển kỹ năng chuyên môn và kỹ năng mềm. Tham gia mock interview là bước đầu tiên để chinh phục mọi thử thách trong sự nghiệp của bạn.
+                      Các chuyên gia của NoteBaby luôn sẵn sàng tư vấn 1:1 về dinh dưỡng, tâm lý, chăm sóc bé và hỗ trợ mẹ bầu chuẩn bị hành trình làm mẹ tốt nhất.
                     </p>
                     <ul className="space-y-2">
                       {[
-                        "Môi Trường Thật",
-                        "Phản Hồi Chính Xác",
-                        "Hướng Dẫn Chi Tiết",
-                        "Kỹ Năng Mềm",
+                        "Tư vấn dinh dưỡng theo tuần thai",
+                        "Giải đáp các vấn đề sức khỏe mẹ & bé",
+                        "Gợi ý bài tập nhẹ nhàng cho mẹ bầu",
+                        "Hướng dẫn chăm sóc bé sơ sinh",
                       ].map((item, i) => (
                         <li key={i} className="flex items-start">
                           <CheckCircle2 className="h-5 w-5 text-primary mr-2 mt-0.5" />
@@ -200,27 +204,29 @@ export default function AboutUsPage() {
                   </div>
                   <div className="md:w-1/2">
                     <img
-                      src="/mock-interview.jpg?height=300&width=400"
-                      alt="Students working on projects"
+                      src="/consultation.jpg?height=300&width=400"
+                      alt="Consultation session"
                       className="rounded-lg object-cover w-full h-auto"
+                      loading="lazy"
                     />
                   </div>
                 </div>
               </TabsContent>
+
+              {/* Chuyên gia đồng hành */}
               <TabsContent value="mentoring" className="p-6 bg-white rounded-lg mt-6">
                 <div className="flex flex-col md:flex-row gap-6 items-center">
                   <div className="md:w-1/2">
-                    <h3 className="text-2xl font-bold mb-4 text-black">Mentoring 1:1</h3>
+                    <h3 className="text-2xl font-bold mb-4 text-black">Đồng hành cùng chuyên gia</h3>
                     <p className="text-gray-800 mb-4">
-                      Mỗi học viên được gán một mentor là lập trình viên có kinh nghiệm, hỗ trợ và hướng dẫn trong suốt
-                      quá trình học tập.
+                      Đội ngũ bác sĩ, chuyên gia dinh dưỡng và tâm lý của NoteBaby đồng hành cùng mẹ trong từng giai đoạn – từ mang thai đến sau sinh.
                     </p>
                     <ul className="space-y-2">
                       {[
-                        "Phiên mentoring hàng tuần",
-                        "Hỗ trợ giải quyết vấn đề kỹ thuật",
-                        "Tư vấn phát triển nghề nghiệp",
-                        "Chia sẻ kinh nghiệm thực tế từ ngành",
+                        "Lịch hẹn chuyên gia định kỳ",
+                        "Hỏi đáp nhanh qua ứng dụng",
+                        "Video hướng dẫn chăm sóc bé",
+                        "Chia sẻ kinh nghiệm từ bác sĩ sản nhi",
                       ].map((item, i) => (
                         <li key={i} className="flex items-start">
                           <CheckCircle2 className="h-5 w-5 text-primary mr-2 mt-0.5" />
@@ -232,26 +238,28 @@ export default function AboutUsPage() {
                   <div className="md:w-1/2">
                     <img
                       src="/mentoring.jpg?height=300&width=400"
-                      alt="Mentoring session"
+                      alt="Expert mentoring"
                       className="rounded-lg object-cover w-full h-auto"
+                      loading="lazy"
                     />
                   </div>
                 </div>
               </TabsContent>
+
+              {/* Cộng đồng mẹ bầu */}
               <TabsContent value="community" className="p-6 bg-white rounded-lg mt-6">
                 <div className="flex flex-col md:flex-row gap-6 items-center">
                   <div className="md:w-1/2">
-                    <h3 className="text-2xl font-bold mb-4 text-black">Cộng đồng học tập</h3>
+                    <h3 className="text-2xl font-bold mb-4 text-black">Cộng đồng mẹ bầu</h3>
                     <p className="text-gray-800 mb-4">
-                      Chúng tôi xây dựng một cộng đồng học tập mạnh mẽ, nơi học viên có thể kết nối, chia sẻ và học hỏi
-                      lẫn nhau.
+                      Cộng đồng mẹ bầu NoteBaby là nơi để các mẹ chia sẻ kinh nghiệm, nhận động lực và cùng nhau vượt qua hành trình làm mẹ đầy yêu thương.
                     </p>
                     <ul className="space-y-2">
                       {[
-                        "Diễn đàn trao đổi kiến thức",
-                        "Hackathons và coding competitions",
-                        "Sự kiện networking với doanh nghiệp",
-                        "Workshops và tech talks từ chuyên gia",
+                        "Nhóm hỗ trợ theo từng tuần thai",
+                        "Sự kiện offline cho mẹ & bé",
+                        "Live talk cùng chuyên gia mỗi tuần",
+                        "Thử thách chăm sóc sức khỏe mẹ & bé",
                       ].map((item, i) => (
                         <li key={i} className="flex items-start">
                           <CheckCircle2 className="h-5 w-5 text-primary mr-2 mt-0.5" />
@@ -263,8 +271,9 @@ export default function AboutUsPage() {
                   <div className="md:w-1/2">
                     <img
                       src="/community.png?height=300&width=400"
-                      alt="Community event"
+                      alt="Mom community event"
                       className="rounded-lg object-cover w-full h-auto"
+                      loading="lazy"
                     />
                   </div>
                 </div>
@@ -274,20 +283,20 @@ export default function AboutUsPage() {
         </div>
       </section>
 
+
       {/* Our Team */}
       <section className="w-full py-12 md:py-24 lg:py-32 bg-white">
         <div className="container px-4 md:px-6">
           <div className="flex flex-col items-center justify-center space-y-4 text-center">
             <div className="space-y-2">
               <div className="inline-block rounded-lg bg-primary/20 px-3 py-1 text-sm text-black">
-                Đội ngũ giảng viên
+                Đội ngũ của chúng tôi
               </div>
               <h2 className="text-3xl font-bold tracking-tighter md:text-4xl text-black">
-                Gặp gỡ những chuyên gia sẽ hướng dẫn bạn
+                Gặp gỡ những người chung tay xây dựng NoteBaby
               </h2>
               <p className="mx-auto max-w-[700px] text-gray-800 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                Đội ngũ giảng viên của chúng tôi là những chuyên gia có nhiều năm kinh nghiệm trong ngành và đam mê chia
-                sẻ kiến thức.
+                Chúng tôi là một đội ngũ đam mê công nghệ và giáo dục, luôn nỗ lực mang đến những trải nghiệm tốt nhất cho cha mẹ và trẻ em.
               </p>
             </div>
           </div>
@@ -300,7 +309,6 @@ export default function AboutUsPage() {
                 <div className="space-y-2 text-center">
                   <h3 className="text-xl font-bold text-black">{instructor.name}</h3>
                   <p className="text-sm text-primary font-medium">{instructor.role}</p>
-                  <p className="text-sm text-gray-800">{instructor.bio}</p>
                 </div>
               </div>
             ))}
@@ -369,91 +377,61 @@ type Program = {
 
 const programs: Program[] = [
   {
-    title: "Lập trình Web Frontend",
-    description: "Học HTML, CSS, JavaScript và React để xây dựng giao diện web hiện đại và responsive.",
-    duration: "4 tháng",
-    badge: "Phổ biến",
+    title: "Nhật ký bé yêu",
+    description: "Lưu lại từng khoảnh khắc đáng nhớ của bé từ lúc mới sinh đến từng bước phát triển.",
+    duration: "Không giới hạn",
+    badge: "Nhật ký bé yêu",
     badgeVariant: "default",
     link: "/courses/frontend",
   },
   {
-    title: "Lập trình Web Fullstack",
-    description: "Phát triển ứng dụng web toàn diện với React, Node.js, và các cơ sở dữ liệu.",
-    duration: "6 tháng",
+    title: "Theo dõi sức khỏe",
+    description: "Theo dõi chiều cao, cân nặng, giấc ngủ và các chỉ số quan trọng khác của bé.",
+    duration: "Theo dõi sức khỏe",
     badge: "Bán chạy",
     badgeVariant: "secondary",
     link: "/courses/fullstack",
   },
   {
-    title: "Lập trình Mobile",
-    description: "Xây dựng ứng dụng di động đa nền tảng với React Native và Flutter.",
-    duration: "5 tháng",
+    title: "Kiến thức nuôi con",
+    description: "Truy cập tài liệu từ bác sĩ, chuyên gia giáo dục và cộng đồng giàu kinh nghiệm.",
+    duration: "Cập nhật liên tục",
     badge: "Mới",
     badgeVariant: "outline",
     link: "/courses/mobile",
-  },
-  {
-    title: "Data Science & AI",
-    description: "Học phân tích dữ liệu, machine learning và trí tuệ nhân tạo với Python.",
-    duration: "6 tháng",
-    badge: "Nâng cao",
-    badgeVariant: "outline",
-    link: "/courses/data-science",
-  },
-  {
-    title: "DevOps & Cloud",
-    description: "Tìm hiểu về CI/CD, containerization và cloud computing với AWS và Azure.",
-    duration: "4 tháng",
-    badge: "Chuyên sâu",
-    badgeVariant: "outline",
-    link: "/courses/devops",
-  },
-  {
-    title: "Lập trình Game",
-    description: "Phát triển game 2D và 3D với Unity và các nguyên lý thiết kế game.",
-    duration: "5 tháng",
-    badge: "Sáng tạo",
-    badgeVariant: "outline",
-    link: "/courses/game-dev",
   },
 ]
 
 const instructors = [
   {
-    name: "Nguyễn Văn Anh",
-    role: "Lead Instructor - Frontend",
-    bio: "10+ năm kinh nghiệm phát triển web, chuyên gia React và JavaScript.",
-    image: "/placeholder.svg?height=200&width=200",
+    name: "Nguyễn Minh Thắng",
+    role: "Lead Developer - Fullstack",
+    image: "/minh-thang.jpg?height=200&width=200",
   },
   {
-    name: "Trần Minh Tuấn",
-    role: "Senior Instructor - Backend",
-    bio: "Kỹ sư phần mềm với 8 năm kinh nghiệm về Node.js và microservices.",
-    image: "/placeholder.svg?height=200&width=200",
+    name: "Nguyễn Hữu Anh Tuấn",
+    role: "Developer - Fullstack",
+    image: "/tuan.jpg?height=200&width=200",
   },
   {
-    name: "Lê Thị Hương",
-    role: "Instructor - Mobile Development",
-    bio: "Phát triển ứng dụng di động cho các doanh nghiệp lớn trong 6 năm.",
-    image: "/placeholder.svg?height=200&width=200",
+    name: "Nguyễn Bá Trung Nguyên",
+    role: "Developer - Frontend",
+    image: "/trung-nguyen.jpg?height=200&width=200",
   },
   {
-    name: "Phạm Đức Thành",
-    role: "Instructor - Data Science",
-    bio: "Tiến sĩ Khoa học Máy tính với chuyên môn về AI và machine learning.",
-    image: "/placeholder.svg?height=200&width=200",
+    name: "Nguyễn Hà Phương",
+    role: "International Business",
+    image: "/phuong.jpg?height=200&width=200",
   },
   {
-    name: "Hoàng Thị Mai",
-    role: "Instructor - UX/UI Design",
-    bio: "Nhà thiết kế UX/UI với kinh nghiệm làm việc tại các công ty công nghệ hàng đầu.",
-    image: "/placeholder.svg?height=200&width=200",
+    name: "Nguyễn Anna Anh Thư",
+    role: "International Business",
+    image: "/thu.jpg?height=200&width=200",
   },
   {
-    name: "Vũ Quang Huy",
-    role: "Instructor - DevOps",
-    bio: "Chuyên gia DevOps và Cloud với chứng chỉ AWS và Azure.",
-    image: "/placeholder.svg?height=200&width=200",
+    name: "Nguyễn Minh Tú",
+    role: "International Business",
+    image: "/tu.jpg?height=200&width=200",
   },
 ]
 

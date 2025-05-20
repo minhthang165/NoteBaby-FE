@@ -19,19 +19,19 @@ export const HeroSection = () => {
             <span> Hãy bắt đầu trải nghiệm nào </span>
           </Badge>
 
-          <div className="max-w-screen-md mx-auto text-center text-4xl md:text-6xl font-bold">
+          <div className="max-w-screen-md mx-auto text-center text-4xl md:text-5xl font-bold">
             <h1>
               Trải nghiệm với
               <span className="text-transparent px-2 bg-gradient-to-r from-[#D247BF] to-primary bg-clip-text">
-                NextEdu
+                NoteBaby
               </span>
               <br/>
-              Nơi nâng tầm trí tuệ
+             Nhật ký yêu thương cho bé 
             </h1>
           </div>
 
           <p className="max-w-screen-sm mx-auto text-xl text-muted-foreground">
-            {`Chúng tôi không chỉ là một công cụ, chúng tôi là một cộng đồng những người sáng tạo đầy nhiệt huyết. Truy cập vào các nguồn tài nguyên, hướng dẫn và hỗ trợ độc quyền`}
+            {`Không chỉ là công cụ ghi chú, mà là cộng đồng của những người sáng tạo đầy đam mê, nơi chia sẻ tri thức, cảm hứng và hành trình lớn lên cùng con.`}
           </p>
 
           <div className="space-y-4 md:space-y-0 md:space-x-4">
@@ -56,15 +56,15 @@ export const HeroSection = () => {
         </div>
 
         <div className="relative group mt-14">
-          <div className="absolute top-2 lg:-top-8 left-1/2 transform -translate-x-1/2 w-[90%] mx-auto h-24 lg:h-80 bg-primary/50 rounded-full blur-3xl"></div>
+          <div className="absolute top-2 lg:-top-8 left-1/2 transform -translate-x-1/2 w-[90%] mx-auto h-24 lg:h-80 bg-gradient-to-r from-sky-400/50 to-pink-400/50 rounded-full blur-3xl"></div>
           <Image
             width={1200}
             height={1200}
             className="w-full md:w-[1200px] mx-auto rounded-lg relative rouded-lg leading-none flex items-center border border-t-2 border-secondary  border-t-primary/30"
             src={
               theme === "light"
-                ? "/hero-image-light.jpeg"
-                : "/hero-image-dark.jpeg"
+                ? "/landing.jpg"
+                : "/landing.jpg"
             }
             alt="dashboard"
           />

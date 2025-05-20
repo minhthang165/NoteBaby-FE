@@ -10,16 +10,16 @@ interface sponsorsProps {
 
 const sponsors: sponsorsProps[] = [
   {
-    name: "Giáo dục là vũ khí mạnh nhất để thay đổi thế giới.",
+    name: "Mỗi khoảnh khắc đều đáng nhớ.",
   },
   {
-    name: "Học vấn không chỉ là con đường đến tri thức, mà còn là con đường đến tương lai.",
+    name: "Ghi lại từng bước lớn khôn.",
   },
   {
-    name: "Thành công bắt đầu từ những bài học nhỏ nhất.",
+    name: "Lưu giữ ký ức, nuôi dưỡng tương lai.",
   },
   {
-    name: "Không có học sinh dốt, chỉ có học sinh chưa được dạy đúng cách.",
+    name: "Bé lớn từng ngày, bạn chẳng bỏ lỡ phút giây nào.",
   },
 ];
 

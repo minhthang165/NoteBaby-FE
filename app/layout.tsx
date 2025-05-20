@@ -7,7 +7,7 @@ import { ThemeProvider } from "@/components/layout/theme-provider";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "NextEducation - Learn Smart, Rise Fast.",
+  title: "NoteBaby – Grow with love, note with care.",
   description: "Guiding Students to Academic Success.",
 };
 

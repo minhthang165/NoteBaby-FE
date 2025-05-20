@@ -69,7 +69,7 @@ export const ContactSection = () => {
             <h2 className="text-3xl md:text-4xl font-bold">Liên hệ với chúng tôi</h2>
           </div>
           <p className="mb-8 text-muted-foreground lg:w-5/6">
-            NextEducation cung cấp các cách liên hệ khách hàng cá nhân và doanh nghiệp, khách hàng ưu tiên, bao gồm qua hotline, nhắn tin trực tiếp
+            NoteBaby cung cấp các cách liên hệ khách hàng cá nhân và doanh nghiệp, khách hàng ưu tiên, bao gồm qua hotline, nhắn tin trực tiếp
           </p>
 
           <div className="flex flex-col gap-4">

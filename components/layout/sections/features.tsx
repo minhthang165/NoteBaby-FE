@@ -11,39 +11,33 @@ interface FeaturesProps {
 const featureList: FeaturesProps[] = [
   {
     icon: "Users",
-    title: "Quản lý học viên",
+    title: "Ghi chú hành trình phát triển của bé",
     description:
-      "Theo dõi thông tin học viên, lịch sử học tập, kết quả và tiến độ học tập.",
+      "Theo dõi các mốc quan trọng, nhật ký hằng ngày của bé.",
   },
   {
     icon: "BookOpen",
-    title: "Quản lý khóa học",
+    title: "Lịch theo dõi & nhắc nhở",
     description:
-      "Tạo và quản lý các khóa học, lịch học, tài liệu giảng dạy và bài tập.",
-  },
-  {
-    icon: "CalendarClock",
-    title: "Lịch giảng dạy",
-    description:
-      "Sắp xếp lịch giảng dạy cho giáo viên, phòng học và theo dõi thời gian biểu.",
-  },
-  {
-    icon: "BarChart3",
-    title: "Báo cáo thống kê",
-    description:
-      "Tạo báo cáo về tình hình học tập, tài chính và hiệu quả giảng dạy.",
+      "Nhắc tiêm chủng đúng lịch, lịch khám sức khỏe định kỳ.",
   },
   {
     icon: "FileText",
-    title: "Quản lý tài liệu",
+    title: "Thư viện tài nguyên – kiến thức",
     description:
-      "Lưu trữ và chia sẻ tài liệu giảng dạy, bài giảng và tài nguyên học tập.",
+      "Hướng dẫn chăm sóc bé theo từng độ tuổi, kèm video, bài viết từ chuyên gia.",
+  },
+  {
+    icon: "BarChart3",
+    title: "Theo dõi sức khỏe – tăng trưởng",
+    description:
+      "Tạo báo cáo, biểu đồ chiều cao, cân nặng theo tuổi.",
   },
   {
     icon: "MessageSquare",
-    title: "Giao tiếp nội bộ",
+    title: "Cộng đồng và hỗ trợ",
     description:
-      "Hệ thống tin nhắn và thông báo giữa giáo viên, học viên và quản lý.",
+      "Diễn đàn hỏi đáp dành cho cha mẹ, hỗ trợ trực tuyến từ chuyên gia hoặc đội ngũ app.",
   },
 ];
 

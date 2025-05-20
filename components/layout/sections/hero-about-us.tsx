@@ -22,14 +22,14 @@ export const HeroAboutUsSection = () => {
           <div className="max-w-screen-md mx-auto text-center text-4xl md:text-6xl font-bold">
             <h1>
               Về
-              <span className="text-transparent px-2 bg-gradient-to-r from-[#D247BF] to-primary bg-clip-text">
-                NextEducation
+              <span className="text-transparent px-2 bg-gradient-to-r from-[#00BFFF] to-[#FF69B4] bg-clip-text">
+                NoteBaby
               </span>
             </h1>
           </div>
 
           <p className="max-w-screen-sm mx-auto text-xl text-muted-foreground">
-            {`Định hình tương lai công nghệ thông qua giáo dục lập trình chất lượng cao`}
+            {`Người bạn đồng hành của cha mẹ trong hành trình lớn khôn của con.`}
           </p>
 
           <div className="space-y-4 md:space-y-0 md:space-x-4">
@@ -54,7 +54,7 @@ export const HeroAboutUsSection = () => {
         </div>
 
         <div className="relative group mt-14">
-          <div className="absolute top-2 lg:-top-8 left-1/2 transform -translate-x-1/2 w-[90%] mx-auto h-24 lg:h-80 bg-primary/50 rounded-full blur-3xl"></div>
+          <div className="absolute top-2 lg:-top-8 left-1/2 transform -translate-x-1/2 w-[90%] mx-auto h-24 lg:h-80 bg-gradient-to-r from-sky-400/50 to-pink-400/50 rounded-full blur-3xl"></div>
           <Image
             width={1200}
             height={1200}
