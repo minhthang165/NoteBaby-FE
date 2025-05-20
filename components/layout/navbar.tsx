@@ -29,6 +29,7 @@ interface RouteProps {
 }
 
 interface FeatureProps {
+  href: string;
   title: string;
   description: string;
 }
@@ -54,15 +55,18 @@ const routeList: RouteProps[] = [
 
 const featureList: FeatureProps[] = [
   {
+   href: "/about-us",
     title: "Về chúng tôi",
     description: "Tất cả thông tin về chúng tôi.",
   },
   {
+    href: "/about-us",
     title: "Điều khoản",
     description:
       "Điều khoản dịch vụ.",
   },
   {
+    href: "/about-us",
     title: "Hỗ trợ",
     description:
       "Hỗ trợ khách hàng.",
@@ -142,17 +146,19 @@ export const Navbar = () => {
                   height={600}
                 />
                 <ul className="flex flex-col gap-2">
-                  {featureList.map(({ title, description }) => (
-                    <li
-                      key={title}
-                      className="rounded-md p-3 text-sm hover:bg-muted"
-                    >
-                      <p className="mb-1 font-semibold leading-none text-foreground">
-                        {title}
-                      </p>
-                      <p className="line-clamp-2 text-muted-foreground">
-                        {description}
-                      </p>
+                  {featureList.map(({ title, description, href }) => (
+                    <li key={title}>
+                      <Link
+                        href={href}
+                        className="block rounded-md p-3 text-sm hover:bg-muted"
+                      >
+                        <p className="mb-1 font-semibold leading-none text-foreground">
+                          {title}
+                        </p>
+                        <p className="line-clamp-2 text-muted-foreground">
+                          {description}
+                        </p>
+                      </Link>
                     </li>
                   ))}
                 </ul>
