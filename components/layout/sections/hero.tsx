@@ -23,7 +23,7 @@ export const HeroSection = () => {
             <h1>
               Trải nghiệm với
               <span className="text-transparent px-2 bg-gradient-to-r from-[#D247BF] to-primary bg-clip-text">
-                NoteBaby
+                NotBy
               </span>
               <br/>
              Nhật ký yêu thương cho bé 

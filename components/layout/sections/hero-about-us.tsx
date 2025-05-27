@@ -23,12 +23,12 @@ export const HeroAboutUsSection = () => {
             <h1>
               Về
               <span className="text-transparent px-2 bg-gradient-to-r from-[#00BFFF] to-[#FF69B4] bg-clip-text">
-                NoteBaby
+                NotBy
               </span>
             </h1>
           </div>
 
-          <p className="max-w-screen-sm mx-auto text-xl text-muted-foreground">
+          <p className="max-w-screen-sm mx-auto text-xxl text-muted-foreground">
             {`Người bạn đồng hành của cha mẹ trong hành trình lớn khôn của con.`}
           </p>
 
@@ -61,8 +61,8 @@ export const HeroAboutUsSection = () => {
             className="w-full md:w-[1200px] mx-auto rounded-lg relative rouded-lg leading-none flex items-center border border-t-2 border-secondary  border-t-primary/30"
             src={
               theme === "light"
-                ? "/hero-image-light.jpeg"
-                : "/hero-image-dark.jpeg"
+                ? "/about-us.jpg"
+                : "/about-us.jpg"
             }
             alt="dashboard"
           />

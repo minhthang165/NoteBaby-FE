@@ -25,48 +25,48 @@ interface PlanProps {
 
 const plans: PlanProps[] = [
   {
-    title: "Free",
+    title: "Cao cấp/Tháng",
     popular: 0,
-    price: 0,
+    price: 39000,
     description:
-      "Lorem ipsum dolor sit, amet ipsum consectetur adipisicing elit.",
-    buttonText: "Start Free Trial",
+      "Gói cao cấp theo tháng dành cho những bậc phụ huynh muốn theo dõi sự phát triển của bé một cách chi tiết và đầy đủ.",
+    buttonText: "Mua ngay",
     benefitList: [
-      "1 team member",
-      "1 GB storage",
-      "Upto 2 pages",
-      "Community support",
-      "AI assistance",
+      "Nhật ký theo dõi bé (Không giới hạn, thêm ảnh và video, xuất pdf)",
+      "Theo dõi sức khỏe (Biểu đồ sức khỏe, lịch tiêm chủng, nhật ký khám)",
+      "Lịch học (Nhắc lịch thông minh, theo dõi tiến độ học tập)",
+      "Thư viện kiến thức (Toàn bộ kiến thức về nuôi dạy trẻ)",
+      "Cộng đồng (Kết nối với các bậc phụ huynh khác)",
     ],
   },
   {
-    title: "Premium",
+    title: "Cao cấp/Quý",
     popular: 1,
-    price: 45,
+    price: 99000,
     description:
-      "Lorem ipsum dolor sit, amet ipsum consectetur adipisicing elit.",
-    buttonText: "Get starterd",
+      "Gói cao cấp theo tháng dành cho những bậc phụ huynh muốn theo dõi sự phát triển của bé một cách chi tiết và đầy đủ.",
+    buttonText: "Mua ngay",
     benefitList: [
-      "4 team member",
-      "8 GB storage",
-      "Upto 6 pages",
-      "Priority support",
-      "AI assistance",
+      "Nhật ký theo dõi bé (Không giới hạn, thêm ảnh và video, xuất pdf)",
+      "Theo dõi sức khỏe (Biểu đồ sức khỏe, lịch tiêm chủng, nhật ký khám)",
+      "Lịch học (Nhắc lịch thông minh, theo dõi tiến độ học tập)",
+      "Thư viện kiến thức (Toàn bộ kiến thức về nuôi dạy trẻ)",
+      "Cộng đồng (Kết nối với các bậc phụ huynh khác)",
     ],
   },
   {
-    title: "Enterprise",
+    title: "Gia đình",
     popular: 0,
-    price: 120,
+    price: 150000,
     description:
-      "Lorem ipsum dolor sit, amet ipsum consectetur adipisicing elit.",
-    buttonText: "Contact US",
+      "Gói gia đình dành cho những bậc phụ huynh có nhiều con và muốn theo dõi sự phát triển của tất cả các bé trong gia đình.",
+    buttonText: "Mua ngay",
     benefitList: [
-      "10 team member",
-      "20 GB storage",
-      "Upto 10 pages",
-      "Phone & email support",
-      "AI assistance",
+      "Theo dõi nhiều hồ sơ trong một tài khoản (Phù hợp cho những gia đình có 2 con trở lên)",
+      "Lịch gia đình (Theo dõi lịch học, lịch tiêm chủng, lịch khám sức khỏe của tất cả các bé trong gia đình)",
+      "Chia sẻ nhật ký (Cho phép các thành viên trong gia đình cùng theo dõi và cập nhật nhật ký của bé)",
+      "Cộng đồng gia đình (Kết nối với các bậc phụ huynh khác trong cùng một gia đình)",
+      "Hỗ trợ ưu tiên (Được hỗ trợ nhanh chóng và ưu tiên trong việc giải quyết các vấn đề liên quan đến tài khoản)",
     ],
   },
 ];
@@ -105,8 +105,7 @@ export const PricingSection = () => {
                 </CardDescription>
 
                 <div>
-                  <span className="text-3xl font-bold">${price}</span>
-                  <span className="text-muted-foreground"> /month</span>
+                  <span className="text-3xl font-bold">{price}đ</span>
                 </div>
               </CardHeader>
 
@@ -115,7 +114,7 @@ export const PricingSection = () => {
                   {benefitList.map((benefit) => (
                     <span key={benefit} className="flex">
                       <Check className="text-primary mr-2" />
-                      <h3>{benefit}</h3>
+                      <h4>{benefit}</h4>
                     </span>
                   ))}
                 </div>

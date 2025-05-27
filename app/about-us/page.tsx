@@ -25,7 +25,7 @@ export default function AboutUsPage() {
                 Mỗi đứa trẻ là một phép màu nhỏ bé, và mỗi khoảnh khắc cùng con đều vô giá.
               </h2>
               <p className="text-gray-800 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                NoteBaby ra đời từ những trang nhật ký đầu tiên của một người mẹ trẻ – người luôn sợ rằng mình sẽ quên mất
+                NotBy ra đời từ những trang nhật ký đầu tiên của một người mẹ trẻ – người luôn sợ rằng mình sẽ quên mất
                 nụ cười đầu tiên của con, tiếng gọi “mẹ” đầu đời, hay lần bé chập chững những bước đi đầu tiên. Những khoảnh
                 khắc ấy không thể quay lại, và chúng xứng đáng được lưu giữ trọn vẹn.
               </p>
@@ -87,7 +87,7 @@ export default function AboutUsPage() {
                 Hỗ trợ cha mẹ từ những điều nhỏ nhất
               </h2>
               <p className="mx-auto max-w-[700px] text-gray-800 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                 NoteBaby giúp bạn đồng hành cùng con bằng cách lưu giữ kỷ niệm, theo dõi phát triển và tiếp cận nguồn tài nguyên đáng tin cậy.
+                 NotBy giúp bạn đồng hành cùng con bằng cách lưu giữ kỷ niệm, theo dõi phát triển và tiếp cận nguồn tài nguyên đáng tin cậy.
               </p>
             </div>
           </div>
@@ -131,10 +131,10 @@ export default function AboutUsPage() {
                 Phương pháp chăm sóc
               </div>
               <h2 className="text-3xl font-bold tracking-tighter md:text-4xl text-black">
-                Cách NoteBaby hỗ trợ mẹ và bé toàn diện
+                Cách NotBy hỗ trợ mẹ và bé toàn diện
               </h2>
               <p className="mx-auto max-w-[700px] text-gray-800 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                Phương pháp chăm sóc của NoteBaby kết hợp giữa kiến thức y khoa, công nghệ và sự thấu cảm để đồng hành cùng hành trình làm mẹ một cách thông minh và an toàn.
+                Phương pháp chăm sóc của NotBy kết hợp giữa kiến thức y khoa, công nghệ và sự thấu cảm để đồng hành cùng hành trình làm mẹ một cách thông minh và an toàn.
               </p>
             </div>
           </div>
@@ -153,7 +153,7 @@ export default function AboutUsPage() {
                   <div className="md:w-1/2">
                     <h3 className="text-2xl font-bold mb-4 text-black">Theo dõi sức khỏe mẹ & bé</h3>
                     <p className="text-gray-800 mb-4">
-                      NoteBaby cung cấp công cụ thông minh để mẹ theo dõi thai kỳ, lịch tiêm chủng, cử động thai và các chỉ số sức khỏe của bé một cách khoa học.
+                      NotBy cung cấp công cụ thông minh để mẹ theo dõi thai kỳ, lịch tiêm chủng, cử động thai và các chỉ số sức khỏe của bé một cách khoa học.
                     </p>
                     <ul className="space-y-2">
                       {[
@@ -172,7 +172,7 @@ export default function AboutUsPage() {
                   <div className="md:w-1/2">
                     <img
                       src="/health-tracking.jpg?height=300&width=400"
-                      alt="Health tracking on NoteBaby"
+                      alt="Health tracking on NotBy"
                       className="rounded-lg object-cover w-full h-auto"
                       loading="lazy"
                     />
@@ -186,7 +186,7 @@ export default function AboutUsPage() {
                   <div className="md:w-1/2">
                     <h3 className="text-2xl font-bold mb-4 text-black">Tư vấn cá nhân 1:1</h3>
                     <p className="text-gray-800 mb-4">
-                      Các chuyên gia của NoteBaby luôn sẵn sàng tư vấn 1:1 về dinh dưỡng, tâm lý, chăm sóc bé và hỗ trợ mẹ bầu chuẩn bị hành trình làm mẹ tốt nhất.
+                      Các chuyên gia của NotBy luôn sẵn sàng tư vấn 1:1 về dinh dưỡng, tâm lý, chăm sóc bé và hỗ trợ mẹ bầu chuẩn bị hành trình làm mẹ tốt nhất.
                     </p>
                     <ul className="space-y-2">
                       {[
@@ -219,7 +219,7 @@ export default function AboutUsPage() {
                   <div className="md:w-1/2">
                     <h3 className="text-2xl font-bold mb-4 text-black">Đồng hành cùng chuyên gia</h3>
                     <p className="text-gray-800 mb-4">
-                      Đội ngũ bác sĩ, chuyên gia dinh dưỡng và tâm lý của NoteBaby đồng hành cùng mẹ trong từng giai đoạn – từ mang thai đến sau sinh.
+                      Đội ngũ bác sĩ, chuyên gia dinh dưỡng và tâm lý của NotBy đồng hành cùng mẹ trong từng giai đoạn – từ mang thai đến sau sinh.
                     </p>
                     <ul className="space-y-2">
                       {[
@@ -252,7 +252,7 @@ export default function AboutUsPage() {
                   <div className="md:w-1/2">
                     <h3 className="text-2xl font-bold mb-4 text-black">Cộng đồng mẹ bầu</h3>
                     <p className="text-gray-800 mb-4">
-                      Cộng đồng mẹ bầu NoteBaby là nơi để các mẹ chia sẻ kinh nghiệm, nhận động lực và cùng nhau vượt qua hành trình làm mẹ đầy yêu thương.
+                      Cộng đồng mẹ bầu NotBy là nơi để các mẹ chia sẻ kinh nghiệm, nhận động lực và cùng nhau vượt qua hành trình làm mẹ đầy yêu thương.
                     </p>
                     <ul className="space-y-2">
                       {[
@@ -293,7 +293,7 @@ export default function AboutUsPage() {
                 Đội ngũ của chúng tôi
               </div>
               <h2 className="text-3xl font-bold tracking-tighter md:text-4xl text-black">
-                Gặp gỡ những người chung tay xây dựng NoteBaby
+                Gặp gỡ những người chung tay xây dựng NotBy
               </h2>
               <p className="mx-auto max-w-[700px] text-gray-800 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
                 Chúng tôi là một đội ngũ đam mê công nghệ và giáo dục, luôn nỗ lực mang đến những trải nghiệm tốt nhất cho cha mẹ và trẻ em.
@@ -311,47 +311,6 @@ export default function AboutUsPage() {
                   <p className="text-sm text-primary font-medium">{instructor.role}</p>
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Testimonials */}
-      <section className="w-full py-12 md:py-24 lg:py-32 bg-gray-50">
-        <div className="container px-4 md:px-6">
-          <div className="flex flex-col items-center justify-center space-y-4 text-center">
-            <div className="space-y-2">
-              <div className="inline-block rounded-lg bg-primary/20 px-3 py-1 text-sm text-black">
-                Phản hồi học viên
-              </div>
-              <h2 className="text-3xl font-bold tracking-tighter md:text-4xl text-black">
-                Học viên nói gì về chúng tôi
-              </h2>
-              <p className="mx-auto max-w-[700px] text-gray-800 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                Hãy nghe những chia sẻ từ các học viên đã tham gia khóa học tại NextEducation.
-              </p>
-            </div>
-          </div>
-          <div className="mx-auto grid max-w-5xl grid-cols-1 gap-6 py-12 md:grid-cols-2 lg:grid-cols-3">
-            {testimonials.map((testimonial, index) => (
-              <Card key={index} className="overflow-hidden">
-                <CardContent className="p-6">
-                  <div className="flex items-start space-x-4">
-                    <img
-                      alt={testimonial.name}
-                      className="rounded-full h-10 w-10 object-cover"
-                      src={testimonial.image || "/placeholder.svg"}
-                    />
-                    <div>
-                      <h3 className="font-bold text-black">{testimonial.name}</h3>
-                      <p className="text-sm text-gray-800">{testimonial.course}</p>
-                    </div>
-                  </div>
-                  <div className="mt-4">
-                    <p className="text-gray-800 italic">"{testimonial.quote}"</p>
-                  </div>
-                </CardContent>
-              </Card>
             ))}
           </div>
         </div>
