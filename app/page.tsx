@@ -16,7 +16,6 @@ export const metadata = {
   description: "Memories that grow with your baby.",
   openGraph: {
     type: "website",
-    url: "https://github.com/nobruf/shadcn-landing-page.git",
     title: "NotBy – Grow with love, note with care.",
     description: "Memories that grow with your baby.",
     images: [
