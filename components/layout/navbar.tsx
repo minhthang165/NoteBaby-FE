@@ -60,13 +60,13 @@ const featureList: FeatureProps[] = [
     description: "Tất cả thông tin về chúng tôi.",
   },
   {
-    href: "/about-us",
+    href: "/terms-of-service",
     title: "Điều khoản",
     description:
       "Điều khoản dịch vụ.",
   },
   {
-    href: "/about-us",
+    href: "/customer-support",
     title: "Hỗ trợ",
     description:
       "Hỗ trợ khách hàng.",
@@ -184,7 +184,7 @@ export const Navbar = () => {
         <Button asChild size="sm" variant="default" aria-label="Login">
           <Link
             aria-label="Login"
-            href="/"
+            href="/sign-in"
           >
             Đăng Nhập
           </Link>

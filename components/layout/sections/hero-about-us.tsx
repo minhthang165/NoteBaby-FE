@@ -31,26 +31,6 @@ export const HeroAboutUsSection = () => {
           <p className="max-w-screen-sm mx-auto text-xxl text-muted-foreground">
             {`Người bạn đồng hành của cha mẹ trong hành trình lớn khôn của con.`}
           </p>
-
-          <div className="space-y-4 md:space-y-0 md:space-x-4">
-            <Button className="w-5/6 md:w-1/4 font-bold group/arrow">
-              Bắt đầu
-              <ArrowRight className="size-5 ml-2 group-hover/arrow:translate-x-1 transition-transform" />
-            </Button>
-
-            <Button
-              asChild
-              variant="secondary"
-              className="w-5/6 md:w-1/4 font-bold"
-            >
-              <Link
-                href="https://github.com/nobruf/shadcn-landing-page.git"
-                target="_blank"
-              >
-                Thông tin
-              </Link>
-            </Button>
-          </div>
         </div>
 
         <div className="relative group mt-14">
