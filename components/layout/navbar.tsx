@@ -36,20 +36,16 @@ interface FeatureProps {
 
 const routeList: RouteProps[] = [
   {
-    href: "#testimonials",
-    label: "Bài viết",
+    href: "/community",
+    label: "Cộng đồng",
   },
   {
-    href: "#team",
-    label: "Đội ngũ",
+    href: "/library",
+    label: "Thư viện",
   },
   {
-    href: "#faq",
-    label: "FAQ",
-  },
-  {
-    href: "#contact",
-    label: "Liên hệ",
+    href: "/dashboard",
+    label: "Quản lý",
   },
 ];
 
