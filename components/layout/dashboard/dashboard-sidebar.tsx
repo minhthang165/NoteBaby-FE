@@ -60,6 +60,11 @@ const navigationItems = [
     url: "#schedule",
     icon: Calendar,
   },
+  {
+    title: "Trang chủ",
+    url: "/",
+    icon: Home,
+  },
 ]
 
 const quickActions = [
