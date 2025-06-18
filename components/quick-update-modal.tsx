@@ -9,13 +9,15 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import { X, Weight, Ruler, Save, TrendingUp } from "lucide-react"
+import { toast } from "@/hooks/use-toast"
 
-interface QuickUpdateModalProps {
+export interface QuickUpdateModalProps {
   isOpen: boolean
   onClose: () => void
   babyName: string
-  currentWeight?: string
-  currentHeight?: string
+  currentWeight: string
+  currentHeight: string
+  onUpdate: (data: { weight?: string; height?: string }) => void
 }
 
 export function QuickUpdateModal({ isOpen, onClose, babyName, currentWeight, currentHeight }: QuickUpdateModalProps) {
@@ -34,13 +36,17 @@ export function QuickUpdateModal({ isOpen, onClose, babyName, currentWeight, cur
 
     // Validate data
     if (!formData.weight && !formData.height) {
-      alert("Vui lòng nhập ít nhất cân nặng hoặc chiều cao")
+      toast({
+      title: "Vui lòng nhập ít nhất cân nặng hoặc chiều cao",
+    })
       return
     }
 
     // Save data logic here
     console.log("Quick update data:", formData)
-    alert(`Đã cập nhật thông tin cho ${babyName}!`)
+    toast({
+      title: "Thêm hoạt động thành công!",
+    })
     onClose()
     resetForm()
   }

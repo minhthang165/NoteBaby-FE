@@ -1,12 +1,22 @@
+"use client"
+
+import type React from "react"
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Textarea } from "@/components/ui/textarea"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Plus, Camera, Star, Calendar, Edit, Trash2 } from "lucide-react"
+import { Plus, Camera, Star, Calendar, Edit, Trash2, X, ChevronLeft, ChevronRight, ImageIcon } from "lucide-react"
+import { useState } from "react"
 
 export function DevelopmentSection() {
+  const [selectedImages, setSelectedImages] = useState<File[]>([])
+  const [viewingImages, setViewingImages] = useState<string[]>([])
+  const [showImageModal, setShowImageModal] = useState(false)
+  const [currentMilestone, setCurrentMilestone] = useState<number | null>(null)
+
   const milestones = [
     {
       id: 1,
@@ -17,6 +27,11 @@ export function DevelopmentSection() {
       photos: 3,
       category: "Vận động",
       important: true,
+      images: [
+        "/placeholder.svg?height=300&width=400",
+        "/placeholder.svg?height=300&width=400",
+        "/placeholder.svg?height=300&width=400",
+      ],
     },
     {
       id: 2,
@@ -27,6 +42,7 @@ export function DevelopmentSection() {
       photos: 2,
       category: "Ngôn ngữ",
       important: true,
+      images: ["/placeholder.svg?height=300&width=400", "/placeholder.svg?height=300&width=400"],
     },
     {
       id: 3,
@@ -37,6 +53,12 @@ export function DevelopmentSection() {
       photos: 4,
       category: "Vận động",
       important: false,
+      images: [
+        "/placeholder.svg?height=300&width=400",
+        "/placeholder.svg?height=300&width=400",
+        "/placeholder.svg?height=300&width=400",
+        "/placeholder.svg?height=300&width=400",
+      ],
     },
     {
       id: 4,
@@ -47,6 +69,13 @@ export function DevelopmentSection() {
       photos: 5,
       category: "Dinh dưỡng",
       important: false,
+      images: [
+        "/placeholder.svg?height=300&width=400",
+        "/placeholder.svg?height=300&width=400",
+        "/placeholder.svg?height=300&width=400",
+        "/placeholder.svg?height=300&width=400",
+        "/placeholder.svg?height=300&width=400",
+      ],
     },
   ]
 
@@ -68,6 +97,91 @@ export function DevelopmentSection() {
   ]
 
   const categories = ["Tất cả", "Vận động", "Ngôn ngữ", "Dinh dưỡng", "Xã hội", "Khác"]
+
+  const ImageUpload = ({ onImagesSelected }: { onImagesSelected: (files: File[]) => void }) => {
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (e.target.files) {
+        const files = Array.from(e.target.files)
+        onImagesSelected(files)
+      }
+    }
+
+    return (
+      <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors">
+        <input type="file" multiple accept="image/*" onChange={handleFileChange} className="hidden" id="image-upload" />
+        <label htmlFor="image-upload" className="cursor-pointer">
+          <Camera className="h-12 w-12 mx-auto mb-3 text-gray-400" />
+          <p className="text-gray-600 mb-2">Nhấp để chọn ảnh hoặc kéo thả vào đây</p>
+          <p className="text-sm text-gray-500">Hỗ trợ JPG, PNG, GIF (tối đa 10MB mỗi ảnh)</p>
+        </label>
+      </div>
+    )
+  }
+
+  const ImageViewer = ({ images, isOpen, onClose }: { images: string[]; isOpen: boolean; onClose: () => void }) => {
+    const [currentIndex, setCurrentIndex] = useState(0)
+
+    if (!isOpen) return null
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+        <div className="relative max-w-4xl max-h-full p-4">
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 text-white bg-black bg-opacity-50 rounded-full p-2 hover:bg-opacity-75"
+          >
+            <X className="h-6 w-6" />
+          </button>
+
+          {images.length > 0 && (
+            <>
+              <img
+                src={images[currentIndex] || "/placeholder.svg"}
+                alt={`Ảnh ${currentIndex + 1}`}
+                className="max-w-full max-h-[80vh] object-contain rounded-lg"
+              />
+
+              {images.length > 1 && (
+                <>
+                  <button
+                    onClick={() => setCurrentIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1))}
+                    className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white bg-black bg-opacity-50 rounded-full p-2 hover:bg-opacity-75"
+                  >
+                    <ChevronLeft className="h-6 w-6" />
+                  </button>
+                  <button
+                    onClick={() => setCurrentIndex((prev) => (prev < images.length - 1 ? prev + 1 : 0))}
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white bg-black bg-opacity-50 rounded-full p-2 hover:bg-opacity-75"
+                  >
+                    <ChevronRight className="h-6 w-6" />
+                  </button>
+
+                  <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-white bg-black bg-opacity-50 px-3 py-1 rounded-full">
+                    {currentIndex + 1} / {images.length}
+                  </div>
+                </>
+              )}
+            </>
+          )}
+        </div>
+      </div>
+    )
+  }
+
+  const handleViewImages = (milestoneId: number) => {
+    const milestone = milestones.find((m) => m.id === milestoneId)
+    if (milestone && milestone.images) {
+      setViewingImages(milestone.images)
+      setCurrentMilestone(milestoneId)
+      setShowImageModal(true)
+    }
+  }
+
+  const handleImageUpload = (files: File[]) => {
+    setSelectedImages(files)
+    // Ở đây bạn có thể xử lý upload ảnh lên server
+    console.log("Uploaded files:", files)
+  }
 
   return (
     <div className="space-y-6">
@@ -140,9 +254,15 @@ export function DevelopmentSection() {
                       <Camera className="h-4 w-4" />
                       {milestone.photos} ảnh
                     </div>
-                    <Button variant="outline" size="sm">
-                      Xem chi tiết
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button variant="outline" size="sm" onClick={() => handleViewImages(milestone.id)}>
+                        <ImageIcon className="h-4 w-4 mr-1" />
+                        Xem ảnh
+                      </Button>
+                      <Button variant="outline" size="sm">
+                        Xem chi tiết
+                      </Button>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -224,6 +344,34 @@ export function DevelopmentSection() {
                 />
               </div>
 
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Ảnh kỷ niệm</label>
+                <ImageUpload onImagesSelected={handleImageUpload} />
+
+                {selectedImages.length > 0 && (
+                  <div className="mt-4">
+                    <p className="text-sm font-medium text-gray-700 mb-2">Ảnh đã chọn ({selectedImages.length}):</p>
+                    <div className="grid grid-cols-3 gap-2">
+                      {selectedImages.map((file, index) => (
+                        <div key={index} className="relative">
+                          <img
+                            src={URL.createObjectURL(file) || "/placeholder.svg"}
+                            alt={`Preview ${index + 1}`}
+                            className="w-full h-20 object-cover rounded-lg"
+                          />
+                          <button
+                            onClick={() => setSelectedImages((prev) => prev.filter((_, i) => i !== index))}
+                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
               <div className="flex items-center gap-4">
                 <Button variant="outline" className="flex items-center gap-2">
                   <Camera className="h-4 w-4" />
@@ -243,6 +391,7 @@ export function DevelopmentSection() {
           </Card>
         </TabsContent>
       </Tabs>
+      <ImageViewer images={viewingImages} isOpen={showImageModal} onClose={() => setShowImageModal(false)} />
     </div>
   )
 }
