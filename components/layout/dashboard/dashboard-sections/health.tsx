@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { useState } from 'react';
 import {
   Heart,
   Plus,
@@ -17,9 +18,274 @@ import {
   CheckCircle,
   Clock,
   User,
+  X,
 } from "lucide-react"
 
+const AddHealthRecordModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
+  const [formData, setFormData] = useState({
+    type: "",
+    date: "",
+    time: "",
+    doctor: "",
+    hospital: "",
+    weight: "",
+    height: "",
+    temperature: "",
+    symptoms: "",
+    diagnosis: "",
+    treatment: "",
+    vaccine: "",
+    notes: "",
+    nextAppointment: "",
+  })
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    // Xử lý lưu dữ liệu
+    console.log("Health record data:", formData)
+    alert("Hồ sơ khám đã được lưu thành công!")
+    onClose()
+  }
+
+  const resetForm = () => {
+    setFormData({
+      type: "",
+      date: "",
+      time: "",
+      doctor: "",
+      hospital: "",
+      weight: "",
+      height: "",
+      temperature: "",
+      symptoms: "",
+      diagnosis: "",
+      treatment: "",
+      vaccine: "",
+      notes: "",
+      nextAppointment: "",
+    })
+  }
+
+  const handleClose = () => {
+    resetForm()
+    onClose()
+  }
+
+  if (!isOpen) return null
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="sticky top-0 bg-white border-b px-6 py-4 flex items-center justify-between">
+          <h2 className="text-xl font-bold">Thêm hồ sơ khám mới</h2>
+          <Button variant="ghost" size="sm" onClick={handleClose}>
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+          {/* Thông tin cơ bản */}
+          <div>
+            <h3 className="text-lg font-semibold mb-4">Thông tin cơ bản</h3>
+            <div className="grid md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Loại khám *</label>
+                <select
+                  required
+                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  value={formData.type}
+                  onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                >
+                  <option value="">Chọn loại khám</option>
+                  <option value="checkup">Khám định kỳ</option>
+                  <option value="vaccine">Tiêm vaccine</option>
+                  <option value="sick">Khám bệnh</option>
+                  <option value="emergency">Cấp cứu</option>
+                  <option value="specialist">Khám chuyên khoa</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Ngày khám *</label>
+                <Input
+                  type="date"
+                  required
+                  value={formData.date}
+                  onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                />
+              </div>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-4 mt-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Giờ khám</label>
+                <Input
+                  type="time"
+                  value={formData.time}
+                  onChange={(e) => setFormData({ ...formData, time: e.target.value })}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Bác sĩ</label>
+                <Input
+                  placeholder="Tên bác sĩ"
+                  value={formData.doctor}
+                  onChange={(e) => setFormData({ ...formData, doctor: e.target.value })}
+                />
+              </div>
+            </div>
+
+            <div className="mt-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">Bệnh viện/Phòng khám</label>
+              <Input
+                placeholder="Tên bệnh viện hoặc phòng khám"
+                value={formData.hospital}
+                onChange={(e) => setFormData({ ...formData, hospital: e.target.value })}
+              />
+            </div>
+          </div>
+
+          {/* Chỉ số sức khỏe */}
+          <div>
+            <h3 className="text-lg font-semibold mb-4">Chỉ số sức khỏe</h3>
+            <div className="grid md:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Cân nặng (kg)</label>
+                <Input
+                  type="number"
+                  step="0.1"
+                  placeholder="8.2"
+                  value={formData.weight}
+                  onChange={(e) => setFormData({ ...formData, weight: e.target.value })}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Chiều cao (cm)</label>
+                <Input
+                  type="number"
+                  step="0.1"
+                  placeholder="69"
+                  value={formData.height}
+                  onChange={(e) => setFormData({ ...formData, height: e.target.value })}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Nhiệt độ (°C)</label>
+                <Input
+                  type="number"
+                  step="0.1"
+                  placeholder="36.5"
+                  value={formData.temperature}
+                  onChange={(e) => setFormData({ ...formData, temperature: e.target.value })}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Thông tin khám bệnh */}
+          {(formData.type === "sick" || formData.type === "emergency") && (
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Thông tin khám bệnh</h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Triệu chứng</label>
+                  <Textarea
+                    placeholder="Mô tả các triệu chứng của bé..."
+                    rows={3}
+                    value={formData.symptoms}
+                    onChange={(e) => setFormData({ ...formData, symptoms: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Chẩn đoán</label>
+                  <Input
+                    placeholder="Chẩn đoán của bác sĩ"
+                    value={formData.diagnosis}
+                    onChange={(e) => setFormData({ ...formData, diagnosis: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Điều trị</label>
+                  <Textarea
+                    placeholder="Phương pháp điều trị, thuốc men..."
+                    rows={3}
+                    value={formData.treatment}
+                    onChange={(e) => setFormData({ ...formData, treatment: e.target.value })}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Thông tin vaccine */}
+          {formData.type === "vaccine" && (
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Thông tin tiêm chủng</h3>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Loại vaccine</label>
+                <select
+                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  value={formData.vaccine}
+                  onChange={(e) => setFormData({ ...formData, vaccine: e.target.value })}
+                >
+                  <option value="">Chọn loại vaccine</option>
+                  <option value="bcg">BCG</option>
+                  <option value="hepatitis-b">Viêm gan B</option>
+                  <option value="5-in-1">Vaccine 5 trong 1</option>
+                  <option value="pneumococcal">Phế cầu khuẩn</option>
+                  <option value="rotavirus">Rotavirus</option>
+                  <option value="measles-rubella">Sởi - Rubella</option>
+                  <option value="hepatitis-a">Viêm gan A</option>
+                  <option value="varicella">Thủy đậu</option>
+                  <option value="other">Khác</option>
+                </select>
+              </div>
+            </div>
+          )}
+
+          {/* Ghi chú */}
+          <div>
+            <h3 className="text-lg font-semibold mb-4">Ghi chú và theo dõi</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Ghi chú của bác sĩ</label>
+                <Textarea
+                  placeholder="Lời khuyên, chú ý đặc biệt từ bác sĩ..."
+                  rows={4}
+                  value={formData.notes}
+                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Lịch hẹn tiếp theo</label>
+                <Input
+                  type="date"
+                  value={formData.nextAppointment}
+                  onChange={(e) => setFormData({ ...formData, nextAppointment: e.target.value })}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Buttons */}
+          <div className="flex gap-4 pt-4 border-t">
+            <Button type="submit" className="flex-1">
+              <Plus className="h-4 w-4 mr-2" />
+              Lưu hồ sơ khám
+            </Button>
+            <Button type="button" variant="outline" onClick={handleClose}>
+              Hủy
+            </Button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}
+
+// Trong component HealthSection, thêm state để quản lý modal
 export function HealthSection() {
+  const [showAddModal, setShowAddModal] = useState(false)
+
   const healthRecords = [
     {
       id: 1,
@@ -101,7 +367,7 @@ export function HealthSection() {
           <h1 className="text-3xl font-bold text-gray-900">Theo dõi sức khỏe</h1>
           <p className="text-gray-600 mt-2">Quản lý thông tin sức khỏe và lịch khám của bé</p>
         </div>
-        <Button className="flex items-center gap-2">
+        <Button className="flex items-center gap-2" onClick={() => setShowAddModal(true)}>
           <Plus className="h-4 w-4" />
           Thêm hồ sơ khám
         </Button>
@@ -416,6 +682,7 @@ export function HealthSection() {
           </Card>
         </TabsContent>
       </Tabs>
+      <AddHealthRecordModal isOpen={showAddModal} onClose={() => setShowAddModal(false)} />
     </div>
   )
 }
