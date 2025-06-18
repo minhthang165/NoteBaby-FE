@@ -76,8 +76,8 @@ export function OverviewSection() {
     title: "",
   })
 
-  // Local storage for persistent data during session
-  const [activities, setActivities] = useLocalStorage<Activity[]>("baby-activities", [
+  // Cập nhật useLocalStorage để sử dụng isMounted
+  const [activities, setActivities, activitiesMounted] = useLocalStorage<Activity[]>("baby-activities", [
     {
       id: "1",
       type: "photo",
@@ -112,13 +112,13 @@ export function OverviewSection() {
     },
   ])
 
-  const [events, setEvents] = useLocalStorage<Event[]>("baby-events", [
+  const [events, setEvents, eventsMounted] = useLocalStorage<Event[]>("baby-events", [
     { id: "1", title: "Khám định kỳ", date: "25/12/2024", type: "health", priority: "high" },
     { id: "2", title: "Học bơi", date: "28/12/2024", type: "activity", priority: "normal" },
     { id: "3", title: "Sinh nhật bé", date: "15/04/2025", type: "milestone", priority: "high" },
   ])
 
-  const [babyStats, setBabyStats] = useLocalStorage("baby-stats", {
+  const [babyStats, setBabyStats, statsMounted] = useLocalStorage("baby-stats", {
     weight: "8.2 kg",
     height: "69 cm",
     photos: 247,
@@ -216,42 +216,50 @@ export function OverviewSection() {
 
     // Hiện toast thành công
     toast({
-      title: "Thêm hoạt động thành công!",
+      title: "Thêm hoạt động thành công! 🎉",
       description: `Đã thêm "${newActivity.content}" vào nhật ký của ${currentBaby.name}`,
     })
   }
 
   // Cập nhật hàm handleUpdateActivity để hiện toast
   const handleUpdateActivity = (updatedActivity: Activity | Omit<Activity, "id" | "time">) => {
-    // If missing id/time (editingActivity is not null so we can use its id/time)
-    let completeActivity: Activity
-    if ("id" in updatedActivity && "time" in updatedActivity) {
-      completeActivity = updatedActivity as Activity
-    } else if (editingActivity) {
-      completeActivity = {
+    // If updatedActivity does not have id/time, use editingActivity as base
+    if (!('id' in updatedActivity) && editingActivity) {
+      const fullActivity: Activity = {
         ...editingActivity,
         ...updatedActivity,
-        time: formatTimeAgo((updatedActivity as any).date ?? editingActivity.date),
+        time: formatTimeAgo(editingActivity.date),
       }
-    } else {
-      // fallback, should not happen
-      return
+      setActivities(
+        activities.map((activity) =>
+          activity.id === fullActivity.id
+            ? { ...fullActivity, time: formatTimeAgo(fullActivity.date) }
+            : activity,
+        ),
+      )
+      setEditingActivity(null)
+
+      // Hiện toast thành công
+      toast({
+        title: "Cập nhật hoạt động thành công! ✅",
+        description: `Đã cập nhật "${fullActivity.content}"`,
+      })
+    } else if ('id' in updatedActivity) {
+      setActivities(
+        activities.map((activity) =>
+          activity.id === updatedActivity.id
+            ? { ...updatedActivity, time: formatTimeAgo(updatedActivity.date) }
+            : activity,
+        ),
+      )
+      setEditingActivity(null)
+
+      // Hiện toast thành công
+      toast({
+        title: "Cập nhật hoạt động thành công! ✅",
+        description: `Đã cập nhật "${updatedActivity.content}"`,
+      })
     }
-
-    setActivities(
-      activities.map((activity) =>
-        activity.id === completeActivity.id
-          ? { ...completeActivity, time: formatTimeAgo(completeActivity.date) }
-          : activity,
-      ),
-    )
-    setEditingActivity(null)
-
-    // Hiện toast thành công
-    toast({
-      title: "Cập nhật hoạt động thành công!",
-      description: `Đã cập nhật "${completeActivity.content}"`,
-    })
   }
 
   // Cập nhật hàm handleDeleteActivity để dùng dialog
@@ -274,8 +282,9 @@ export function OverviewSection() {
 
     // Hiện toast thành công
     toast({
-      title: "Đã xóa hoạt động!",
+      title: "Đã xóa hoạt động! 🗑️",
       description: "Hoạt động đã được xóa khỏi nhật ký",
+      variant: "destructive",
     })
   }
 
@@ -289,7 +298,7 @@ export function OverviewSection() {
 
     // Hiện toast thành công
     toast({
-      title: "Thêm sự kiện thành công!",
+      title: "Thêm sự kiện thành công! 📅",
       description: `Đã thêm sự kiện "${newEvent.title}" vào lịch`,
     })
   }
@@ -301,7 +310,7 @@ export function OverviewSection() {
 
     // Hiện toast thành công
     toast({
-      title: "Cập nhật sự kiện thành công!",
+      title: "Cập nhật sự kiện thành công! ✅",
       description: `Đã cập nhật sự kiện "${updatedEvent.title}"`,
     })
   }
@@ -326,8 +335,9 @@ export function OverviewSection() {
 
     // Hiện toast thành công
     toast({
-      title: "Đã xóa sự kiện!",
+      title: "Đã xóa sự kiện! 🗑️",
       description: "Sự kiện đã được xóa khỏi lịch",
+      variant: "destructive",
     })
   }
 
@@ -355,13 +365,15 @@ export function OverviewSection() {
 
     // Hiện toast thành công
     toast({
-      title: "Cập nhật thông số thành công!",
+      title: "Cập nhật thông số thành công! 📏",
       description: `Đã cập nhật ${updateContent.join(", ")} cho ${currentBaby.name}`,
     })
   }
 
   // Update time ago for activities every minute
   useEffect(() => {
+    if (!activitiesMounted) return
+
     const interval = setInterval(() => {
       setActivities((prev) =>
         prev.map((activity) => ({
@@ -372,7 +384,27 @@ export function OverviewSection() {
     }, 60000)
 
     return () => clearInterval(interval)
-  }, [])
+  }, [activitiesMounted, setActivities])
+
+  // Hiển thị loading state cho đến khi tất cả dữ liệu được load
+  if (!activitiesMounted || !eventsMounted || !statsMounted) {
+    return (
+      <div className="space-y-6">
+        <div className="animate-pulse">
+          <div className="h-32 bg-gray-200 rounded-lg mb-6"></div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="h-32 bg-gray-200 rounded-lg"></div>
+            ))}
+          </div>
+          <div className="grid lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2 h-64 bg-gray-200 rounded-lg"></div>
+            <div className="h-64 bg-gray-200 rounded-lg"></div>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">

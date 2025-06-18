@@ -9,18 +9,27 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import { X, Weight, Ruler, Save, TrendingUp } from "lucide-react"
+
+// Thêm import cho toast
 import { toast } from "@/hooks/use-toast"
 
-export interface QuickUpdateModalProps {
+interface QuickUpdateModalProps {
   isOpen: boolean
   onClose: () => void
   babyName: string
-  currentWeight: string
-  currentHeight: string
-  onUpdate: (data: { weight?: string; height?: string }) => void
+  currentWeight?: string
+  currentHeight?: string
+  onUpdate?: (data: { weight?: string; height?: string }) => void
 }
 
-export function QuickUpdateModal({ isOpen, onClose, babyName, currentWeight, currentHeight }: QuickUpdateModalProps) {
+export function QuickUpdateModal({
+  isOpen,
+  onClose,
+  babyName,
+  currentWeight,
+  currentHeight,
+  onUpdate,
+}: QuickUpdateModalProps) {
   const [formData, setFormData] = useState({
     weight: "",
     height: "",
@@ -31,22 +40,38 @@ export function QuickUpdateModal({ isOpen, onClose, babyName, currentWeight, cur
 
   const [showComparison, setShowComparison] = useState(false)
 
+  // Cập nhật hàm handleSubmit để hiện toast
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
 
     // Validate data
     if (!formData.weight && !formData.height) {
       toast({
-      title: "Vui lòng nhập ít nhất cân nặng hoặc chiều cao",
-    })
+        title: "Lỗi nhập liệu",
+        description: "Vui lòng nhập ít nhất cân nặng hoặc chiều cao",
+        variant: "destructive",
+      })
       return
     }
 
-    // Save data logic here
-    console.log("Quick update data:", formData)
+    // Call onUpdate callback if provided
+    if (onUpdate) {
+      onUpdate({
+        weight: formData.weight || undefined,
+        height: formData.height || undefined,
+      })
+    }
+
+    // Hiện toast thành công
+    const updateInfo = []
+    if (formData.weight) updateInfo.push(`cân nặng ${formData.weight}kg`)
+    if (formData.height) updateInfo.push(`chiều cao ${formData.height}cm`)
+
     toast({
-      title: "Thêm hoạt động thành công!",
+      title: "Cập nhật thành công! 📏",
+      description: `Đã cập nhật ${updateInfo.join(" và ")} cho ${babyName}`,
     })
+
     onClose()
     resetForm()
   }
@@ -69,8 +94,8 @@ export function QuickUpdateModal({ isOpen, onClose, babyName, currentWeight, cur
 
   // Mock previous data for comparison
   const previousData = {
-    weight: currentWeight || "8.0",
-    height: currentHeight || "68",
+    weight: currentWeight?.replace(" kg", "") || "8.0",
+    height: currentHeight?.replace(" cm", "") || "68",
     date: "15/11/2024",
   }
 
