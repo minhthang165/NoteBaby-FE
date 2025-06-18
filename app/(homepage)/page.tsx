@@ -50,8 +50,6 @@ export default function Home() {
       <TeamSection />
       {/* <CommunitySection /> */}
       <PricingSection />
-      <FAQSection />
-      <ContactSection />
       <FooterSection />
     </>
   );
