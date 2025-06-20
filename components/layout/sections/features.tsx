@@ -19,7 +19,7 @@ const featureList: FeaturesProps[] = [
     icon: "BookOpen",
     title: "Lịch theo dõi & nhắc nhở",
     description:
-      "Nhắc tiêm chủng đúng lịch, lịch khám sức khỏe định kỳ.",
+      "Nhắc tiêm chủng đúng lịch, lịch khám sức khỏe định kỳ và thời gian biểu của bé.",
   },
   {
     icon: "FileText",
@@ -49,11 +49,11 @@ export const FeaturesSection = () => {
       </h2>
 
       <h2 className="text-3xl md:text-4xl text-center font-bold mb-4">
-        Giải pháp toàn diện cho trung tâm giáo dục
+        Giải pháp cho cha mẹ hiện đại
       </h2>
 
       <h3 className="md:w-1/2 mx-auto text-xl text-center text-muted-foreground mb-8">
-        Nền tảng của chúng tôi cung cấp đầy đủ các công cụ cần thiết để quản lý hiệu quả mọi hoạt động của trung tâm giảng dạy.
+        NotBy cung cấp các công cụ và tài nguyên cần thiết để cha mẹ theo dõi và hỗ trợ sự phát triển của bé yêu một cách toàn diện.
       </h3>
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">

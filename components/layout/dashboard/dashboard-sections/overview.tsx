@@ -419,7 +419,7 @@ export function OverviewSection() {
               </AvatarFallback>
             </Avatar>
             <div className="flex-1">
-              <h1 className="text-2xl font-bold text-gray-900 mb-1">Chào mừng trở lại! 👋</h1>
+              <h1 className="text-2xl font-bold text-gray-900 mb-1">Chào mừng trở lại! </h1>
               <p className="text-gray-600 mb-2">
                 Hôm nay {currentBaby.name} đã {currentBaby.age} tuổi
               </p>
