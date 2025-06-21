@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
-import { Baby, Badge, Calendar, Camera } from "lucide-react"
+import { Baby, Badge, Calendar, Camera, Home } from "lucide-react"
 import { OverviewSection } from "@/components/layout/dashboard/dashboard-sections/overview"
 import { StatisticsSection } from "@/components/layout/dashboard/dashboard-sections/statistic"
 import { DevelopmentSection } from "@/components/layout/dashboard/dashboard-sections/development"
@@ -11,6 +11,7 @@ import { ScheduleSection } from "@/components/layout/dashboard/dashboard-section
 import { DashboardSidebar } from "@/components/layout/dashboard/dashboard-sidebar"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
+import Link from 'next/link';
 
 // Mock data cho bé hiện tại
 const currentBaby = {
@@ -91,6 +92,12 @@ export default function DashboardPage() {
 
           {/* Quick Actions */}
           <div className="flex items-center gap-2">
+            <Link href="/" passHref>
+              <Button variant="outline" size="sm" className="hidden sm:flex">
+                <Home className="h-4 w-4 mr-1" />
+                <span className="hidden lg:inline">Trang chủ</span>
+              </Button>
+            </Link>
             <Button variant="ghost" size="sm" className="hidden sm:flex">
               <Camera className="h-4 w-4 mr-1" />
               <span className="hidden lg:inline">Thêm ảnh</span>

@@ -65,11 +65,6 @@ const navigationItems = [
     url: "#schedule",
     icon: Calendar,
   },
-  {
-    title: "Trang chủ",
-    url: "/",
-    icon: Home,
-  },
 ]
 
 const quickActions = [
@@ -140,7 +135,7 @@ export function DashboardSidebar({ activeSection, onSectionChange, ...props }: D
             <Baby className="h-5 w-5 text-white" />
           </div>
           <div>
-            <h2 className="text-lg font-semibold">NoteBaby</h2>
+            <h2 className="text-lg font-semibold">NotBy</h2>
             <p className="text-xs text-muted-foreground">Kỷ niệm của bé</p>
           </div>
         </div>
