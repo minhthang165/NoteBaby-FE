@@ -109,7 +109,7 @@ export default function AuthPage() {
   }
 
   const handleSocialLogin = (provider: string) => {
-    alert(`Đăng nhập bằng ${provider}`)
+    window.location.href = `http://localhost:5010/auth/${provider.toLowerCase()}`
   }
 
   return (
@@ -216,7 +216,7 @@ export default function AuthPage() {
                       <Separator />
                     </div>
                     <div className="relative flex justify-center text-xs uppercase">
-                      <span className="bg-white px-2 text-gray-500">Hoặc đăng nhập bằng</span>
+                      <span className="bg-card px-2 text-gray-500">Hoặc đăng nhập bằng</span>
                     </div>
                   </div>
 
