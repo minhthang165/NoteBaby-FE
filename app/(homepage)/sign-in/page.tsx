@@ -4,6 +4,7 @@ import type React from "react"
 
 import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { API_URL } from "@/lib/api/axiosClient"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -108,8 +109,14 @@ export default function AuthPage() {
     }, 1500)
   }
 
-  const handleSocialLogin = (provider: string) => {
-    window.location.href = `http://localhost:5010/auth/${provider.toLowerCase()}`
+  const handleSocialLogin = async (provider: string) => {
+    try {
+      const providerLower = provider.toLowerCase();
+      window.location.href = `${API_URL}/auth/${providerLower}`;
+    } catch (error) {
+      console.error("Error initiating social login:", error);
+      alert("Không thể kết nối đến dịch vụ xác thực. Vui lòng thử lại sau.");
+    }
   }
 
   return (
