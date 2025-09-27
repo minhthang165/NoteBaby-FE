@@ -1,6 +1,7 @@
 "use client"
 
 import type * as React from "react"
+import { useEffect } from "react"
 import {
   BarChart3,
   BookOpen,
@@ -22,7 +23,6 @@ import {
   Link,
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
-
 import {
   Sidebar,
   SidebarContent,
@@ -39,6 +39,9 @@ import {
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { logout } from '@/lib/utils';
+import { getDataFromJWT } from '@/lib/utils';
 
 const navigationItems = [
   {
@@ -121,6 +124,20 @@ interface DashboardSidebarProps extends React.ComponentProps<typeof Sidebar> {
 
 export function DashboardSidebar({ activeSection, onSectionChange, ...props }: DashboardSidebarProps) {
   const [selectedBaby, setSelectedBaby] = useState(babies.find((baby) => baby.isActive) || babies[0])
+  const [userData, setUserData] = useState<any>(null);
+
+  const router = useRouter();
+
+  // Get user data from JWT on component mount
+  useEffect(() => {
+    const data = getDataFromJWT();
+    setUserData(data);
+  }, []);
+
+  const handleLogout = () => {
+    logout();
+    router.push('/sign-in');
+  };
 
   const handleBabyChange = (baby: (typeof babies)[0]) => {
     setSelectedBaby(baby)
@@ -275,10 +292,10 @@ export function DashboardSidebar({ activeSection, onSectionChange, ...props }: D
                 <SidebarMenuButton>
                   <Avatar className="h-6 w-6">
                     <AvatarImage src="/placeholder.svg?height=24&width=24" />
-                    <AvatarFallback>NV</AvatarFallback>
+                    <AvatarFallback>{userData?.name ? userData.name.charAt(0) : 'U'}</AvatarFallback>
                   </Avatar>
                   <div className="flex flex-col items-start text-left">
-                    <span className="text-sm font-medium">Nguyễn Văn A</span>
+                    <span className="text-sm font-medium">{userData?.name || 'Người dùng'}</span>
                     <span className="text-xs text-muted-foreground">Ba của {babies.length} bé</span>
                   </div>
                   <ChevronDown className="ml-auto" />
@@ -303,7 +320,7 @@ export function DashboardSidebar({ activeSection, onSectionChange, ...props }: D
                 </DropdownMenuItem>
                 <DropdownMenuItem>
                   <LogOut className="mr-2 h-4 w-4" />
-                  Đăng xuất
+                  <span onClick={handleLogout} style={{ cursor: 'pointer', width: '100%' }}>Đăng xuất</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
