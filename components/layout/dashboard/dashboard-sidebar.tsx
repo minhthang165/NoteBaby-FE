@@ -292,10 +292,10 @@ export function DashboardSidebar({ activeSection, onSectionChange, ...props }: D
                 <SidebarMenuButton>
                   <Avatar className="h-6 w-6">
                     <AvatarImage src="/placeholder.svg?height=24&width=24" />
-                    <AvatarFallback>{userData?.name ? userData.name.charAt(0) : 'U'}</AvatarFallback>
+                    <AvatarFallback>{userData?.firstName ? userData.firstName.charAt(0) : 'U'}</AvatarFallback>
                   </Avatar>
                   <div className="flex flex-col items-start text-left">
-                    <span className="text-sm font-medium">{userData?.name || 'Người dùng'}</span>
+                    <span className="text-sm font-medium">{userData?.firstName + ' ' + userData?.lastName || 'Người dùng'}</span>
                     <span className="text-xs text-muted-foreground">Ba của {babies.length} bé</span>
                   </div>
                   <ChevronDown className="ml-auto" />
