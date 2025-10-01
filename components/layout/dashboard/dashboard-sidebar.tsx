@@ -125,14 +125,36 @@ interface DashboardSidebarProps extends React.ComponentProps<typeof Sidebar> {
 export function DashboardSidebar({ activeSection, onSectionChange, ...props }: DashboardSidebarProps) {
   const [selectedBaby, setSelectedBaby] = useState(babies.find((baby) => baby.isActive) || babies[0])
   const [userData, setUserData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const router = useRouter();
 
   // Get user data from JWT on component mount
   useEffect(() => {
-    const data = getDataFromJWT();
-    setUserData(data);
-  }, []);
+    // This function runs after component mount and handles authentication
+    const handleAuth = () => {
+      setIsLoading(true);
+      try {
+        // Get data from JWT (from URL params, localStorage, or cookies)
+        const data = getDataFromJWT();
+        console.log("Authentication data:", data);
+        
+        if (data) {
+          setUserData(data);
+        } else {
+          console.log("No authentication data found, redirecting to sign-in");
+          // If no auth data found, redirect to login
+          router.push('/sign-in');
+        }
+      } catch (error) {
+        console.error("Authentication error:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    handleAuth();
+  }, [router]);
 
   const handleLogout = () => {
     logout();
@@ -291,12 +313,28 @@ export function DashboardSidebar({ activeSection, onSectionChange, ...props }: D
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton>
                   <Avatar className="h-6 w-6">
-                    <AvatarImage src="/placeholder.svg?height=24&width=24" />
-                    <AvatarFallback>{userData?.firstName ? userData.firstName.charAt(0) : 'U'}</AvatarFallback>
+                    <AvatarImage src={userData?.photo || "/placeholder.svg?height=24&width=24"} />
+                    <AvatarFallback>
+                      {isLoading ? '...' : userData?.firstName ? userData.firstName.charAt(0) : 'U'}
+                    </AvatarFallback>
                   </Avatar>
                   <div className="flex flex-col items-start text-left">
-                    <span className="text-sm font-medium">{userData?.firstName + ' ' + userData?.lastName || 'Người dùng'}</span>
-                    <span className="text-xs text-muted-foreground">Ba của {babies.length} bé</span>
+                    {isLoading ? (
+                      <span className="text-sm font-medium">Đang tải...</span>
+                    ) : (
+                      <>
+                        <span className="text-sm font-medium">
+                          {userData?.firstName && userData?.lastName 
+                            ? `${userData.firstName} ${userData.lastName}` 
+                            : userData?.email 
+                              ? userData.email.split('@')[0] 
+                              : 'Người dùng'}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          {userData?.role || ''} {babies.length > 0 ? `- Quản lý ${babies.length} bé` : ''}
+                        </span>
+                      </>
+                    )}
                   </div>
                   <ChevronDown className="ml-auto" />
                 </SidebarMenuButton>
