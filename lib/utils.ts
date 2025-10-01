@@ -25,3 +25,18 @@ export function getDataFromJWT() {
     return null;
   }
 }
+
+export function getDataFromJWT() {
+  const token = Cookies.get('jwtToken'); // replace with your cookie name
+  console.log("📋 JWT token found:", token ? "Yes" : "No");
+  if (!token) {
+    return null;
+  }
+  try {
+    var decoded = jwtDecode(token); // returns the payload object
+    console.log("🔓 Decoded JWT:", decoded);
+    return decoded;
+  } catch (e) {
+      return null;
+  }
+}
