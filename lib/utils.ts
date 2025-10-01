@@ -15,16 +15,12 @@ export function logout() {
 }
 
 export function getDataFromJWT() {
-  const token = Cookies.get('jwtToken'); // replace with your cookie name
-  console.log("📋 JWT token found:", token ? "Yes" : "No");
-  if (!token) {
-    return null;
-  }
-  try {
-    var decoded = jwtDecode(token); // returns the payload object
-    console.log("🔓 Decoded JWT:", decoded);
-    return decoded;
-  } catch (e) {
-      return null;
+  const urlParams = new URLSearchParams(window.location.search);
+  const token = urlParams.get('token');
+  
+  if (token) {
+    localStorage.setItem('jwtToken', token);
+    const cleanUrl = window.location.pathname;
+    window.history.replaceState({}, document.title, cleanUrl);
   }
 }
