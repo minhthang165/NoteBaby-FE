@@ -13,6 +13,26 @@ const axiosClient = axios.create({
   },
 });
 
+// Configure axios to handle multipart/form-data requests properly
+axiosClient.interceptors.request.use(config => {
+  // If the request contains FormData, remove the Content-Type header
+  // so that the browser can set it automatically with the correct boundary
+  if (
+    config.data instanceof FormData ||
+    Object.prototype.toString.call(config.data) === '[object FormData]'
+  ) {
+    config.headers["Content-Type"] = "multipart/form-data";
+  }
+  
+  // Add auth token from localStorage if available
+  const token = localStorage.getItem('jwtToken');
+  if (token) {
+    config.headers["Authorization"] = `Bearer ${token}`;
+  }
+  
+  return config;
+});
+
 // Export the base URL for non-axios usage
 export const API_URL = API_BASE_URL;
 
