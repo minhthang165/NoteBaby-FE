@@ -75,4 +75,6 @@ export function getAuthorId(): string {
     console.error("Error extracting user ID from token:", error);
     throw new Error("Failed to get author ID");
   }
+  
+  return null;
 }
