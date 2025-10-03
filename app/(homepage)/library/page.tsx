@@ -12,6 +12,7 @@ import { CreateArticleModal } from "@/components/create-article-modal"
 import { Label } from "@/components/ui/label"
 import { Toast } from "@/components/ui/toast"
 import { useToast } from "@/hooks/use-toast"
+import ProtectedRoute from "@/components/layout/protected-route"
 import {
   Search,
   BookOpen,
@@ -678,6 +679,14 @@ function FileUploadModal({ open, onOpenChange, onUploadSuccess }: {
 }
 
 export default function LibraryPage() {
+  return (
+    <ProtectedRoute>
+      <LibraryPageContent />
+    </ProtectedRoute>
+  )
+}
+
+function LibraryPageContent() {
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("all")

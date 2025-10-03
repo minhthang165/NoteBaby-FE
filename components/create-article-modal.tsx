@@ -18,6 +18,7 @@ import { cloudinaryAPI } from "@/lib/api/cloudinaryAPI"
 import { mediafileAPI } from "@/lib/api/mediafileAPI"
 import { articlesAPI } from "@/lib/api/articleAPI"
 import { categoryAPI } from "@/lib/api/categoryAPI"
+import { getAuthorId } from "@/lib/utils"
 import { Plus, Loader2, Upload, FileText, Check } from "lucide-react"
 
 // Define type for category from API
@@ -134,27 +135,6 @@ export function CreateArticleModal({ onSuccess }: CreateArticleProps) {
     setTimeout(() => {
       resetForm()
     }, 300) // Delay to allow animation to complete
-  }
-
-  // Get the JWT token from localStorage
-  const getAuthorId = () => {
-    try {
-      // Get the JWT token from localStorage
-      const token = localStorage.getItem('jwtToken')
-      
-      if (!token) {
-        throw new Error("Authentication token not found")
-      }
-      
-      // Parse the token payload (assumes token is in format: header.payload.signature)
-      const payload = JSON.parse(atob(token.split('.')[1]))
-      
-      // Return the user ID from the token
-      return payload.id || payload._id || payload.userId || payload.sub
-    } catch (error) {
-      console.error("Error extracting user ID from token:", error)
-      throw new Error("Failed to get author ID")
-    }
   }
 
   // Handle form submission
