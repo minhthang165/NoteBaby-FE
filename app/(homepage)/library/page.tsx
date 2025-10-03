@@ -1,14 +1,17 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef, FormEvent } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription, DialogFooter } from "@/components/ui/dialog"
 import { CreateArticleModal } from "@/components/create-article-modal"
+import { Label } from "@/components/ui/label"
+import { Toast } from "@/components/ui/toast"
+import { useToast } from "@/hooks/use-toast"
 import {
   Search,
   BookOpen,
@@ -28,10 +31,14 @@ import {
   Share2,
   Eye,
   Loader2,
+  Upload,
+  Video,
+  X
 } from "lucide-react"
 import { categoryAPI } from "@/lib/api/categoryAPI"
 import { articlesAPI } from "@/lib/api/articleAPI"
 import { mediafileAPI } from "@/lib/api/mediafileAPI"
+import { cloudinaryAPI } from "@/lib/api/cloudinaryAPI"
 import { userApi } from "@/lib/api/userAPI"
 
 // Define type for category from API
@@ -220,7 +227,458 @@ const categoryIconMap: Record<string, { icon: React.ComponentType<any>; id: stri
   "Giáo dục": { icon: GraduationCap, id: "education" },
 }
 
+// Helper function to determine the correct file extension
+const getFileExtension = (fileUrl: string, fileType: string): string => {
+  // Try to extract extension from URL
+  const urlExtension = fileUrl.split('.').pop();
+  
+  // Common file types and their extensions
+  const extensionMap: Record<string, string> = {
+    'pdf': '.pdf',
+    'doc': '.doc',
+    'docx': '.docx',
+    'xls': '.xls',
+    'xlsx': '.xlsx',
+    'ppt': '.ppt',
+    'pptx': '.pptx',
+    'txt': '.txt',
+    'csv': '.csv',
+    'zip': '.zip',
+    'rar': '.rar',
+    'image': '.png', // Default for images
+    'video': '.mp4', // Default for videos
+    'other': '.pdf'  // Default for other types
+  };
+  
+  // If URL ends with a recognized extension that is 2-5 characters long, use it
+  if (urlExtension && /^[a-zA-Z0-9]{2,5}$/.test(urlExtension)) {
+    return `.${urlExtension.toLowerCase()}`;
+  }
+  
+  // If URL contains file type hints
+  if (fileUrl.includes('/pdf/')) return '.pdf';
+  if (fileUrl.includes('/doc/')) return '.docx';
+  if (fileUrl.includes('/excel/')) return '.xlsx';
+  
+  // Check if fileType is a key in our map or has any common extensions in it
+  for (const [key, extension] of Object.entries(extensionMap)) {
+    if (fileType.toLowerCase().includes(key)) {
+      return extension;
+    }
+  }
+  
+  // Default to PDF for Cloudinary document files if we can't determine type
+  return '.pdf';
+}
+
+// VideoUploadModal Component
+function VideoUploadModal({ open, onOpenChange, onUploadSuccess }: { 
+  open: boolean; 
+  onOpenChange: (open: boolean) => void;
+  onUploadSuccess: () => void;
+}) {
+  const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [fileName, setFileName] = useState("");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      // Use the file name as default but allow user to change it
+      setFileName(file.name.split('.')[0]);
+    }
+  };
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    
+    if (!selectedFile || !fileName.trim()) {
+      toast({
+        title: "Error",
+        description: "Please select a file and provide a name",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setIsUploading(true);
+      
+      // Create FormData for file upload
+      const formData = new FormData();
+      formData.append("file", selectedFile);
+      
+      // Upload file to Cloudinary
+      const uploadResponse = await cloudinaryAPI.upload(formData);
+      
+      if (uploadResponse.data.status && uploadResponse.data.data) {
+        const fileUrl = uploadResponse.data.data;
+        
+        // Get user ID from JWT token
+        const jwtToken = localStorage.getItem('jwtToken');
+        let userId = ""; 
+        
+        // Normally you'd decode the JWT to get the user ID, but for now we'll use the one provided
+        userId = "68dc9bc344092a1355ccf5d6"; // From user request
+        
+        // Create media file record
+        const mediaFileData = {
+          fileUrl: fileUrl,
+          fileName: fileName,
+          fileType: "video",
+          Author: userId
+        };
+        
+        const mediaResponse = await mediafileAPI.create(mediaFileData);
+        
+        if (mediaResponse.data.status) {
+          toast({
+            title: "Success",
+            description: "Video uploaded successfully",
+          });
+          onUploadSuccess();
+          onOpenChange(false);
+        } else {
+          throw new Error("Failed to create media record");
+        }
+      } else {
+        throw new Error("File upload failed");
+      }
+    } catch (error) {
+      console.error("Error uploading video:", error);
+      toast({
+        title: "Upload Failed",
+        description: "There was an error uploading your video. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
+      setUploadProgress(0);
+    }
+  };
+
+  const resetForm = () => {
+    setFileName("");
+    setSelectedFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  // Reset form when dialog closes
+  useEffect(() => {
+    if (!open) {
+      resetForm();
+    }
+  }, [open]);
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Upload Video</DialogTitle>
+          <DialogDescription>
+            Upload a new video to the library. The video will be processed and added to your collection.
+          </DialogDescription>
+        </DialogHeader>
+        
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-2">
+            <Label htmlFor="fileName">Video Title</Label>
+            <Input
+              id="fileName"
+              value={fileName}
+              onChange={(e) => setFileName(e.target.value)}
+              placeholder="Enter video title"
+              required
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="video">Video File</Label>
+            <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center cursor-pointer hover:bg-gray-50 transition-colors" 
+                 onClick={() => fileInputRef.current?.click()}>
+              <input
+                ref={fileInputRef}
+                id="video"
+                type="file"
+                accept="video/*"
+                onChange={handleFileChange}
+                className="hidden"
+                required
+              />
+              
+              {selectedFile ? (
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <Video className="h-6 w-6 text-blue-500 mr-2" />
+                    <span className="text-sm truncate max-w-[200px]">{selectedFile.name}</span>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      resetForm();
+                    }}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center">
+                  <Upload className="h-8 w-8 text-gray-400 mb-2" />
+                  <span className="text-sm text-gray-500">Click to upload or drag and drop</span>
+                  <span className="text-xs text-gray-400 mt-1">MP4, WebM, or other video formats</span>
+                </div>
+              )}
+            </div>
+          </div>
+          
+          {isUploading && (
+            <div className="w-full bg-gray-200 rounded-full h-2.5">
+              <div 
+                className="bg-blue-600 h-2.5 rounded-full transition-all" 
+                style={{ width: `${uploadProgress}%` }}
+              ></div>
+            </div>
+          )}
+          
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isUploading}>
+              Cancel
+            </Button>
+            <Button type="submit" disabled={isUploading || !selectedFile}>
+              {isUploading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Uploading...
+                </>
+              ) : "Upload Video"}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// FileUploadModal Component
+function FileUploadModal({ open, onOpenChange, onUploadSuccess }: { 
+  open: boolean; 
+  onOpenChange: (open: boolean) => void;
+  onUploadSuccess: () => void;
+}) {
+  const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [fileName, setFileName] = useState("");
+  const [fileDescription, setFileDescription] = useState("");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      // Use the file name as default but allow user to change it
+      setFileName(file.name.split('.')[0]);
+    }
+  };
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    
+    if (!selectedFile || !fileName.trim()) {
+      toast({
+        title: "Error",
+        description: "Please select a file and provide a name",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setIsUploading(true);
+      
+      // Create FormData for file upload
+      const formData = new FormData();
+      formData.append("file", selectedFile);
+      
+      // Upload file to Cloudinary
+      const uploadResponse = await cloudinaryAPI.upload(formData);
+      
+      if (uploadResponse.data.status && uploadResponse.data.data) {
+        const fileUrl = uploadResponse.data.data;
+        
+        // Get user ID from JWT token
+        const jwtToken = localStorage.getItem('jwtToken');
+        let userId = ""; 
+        
+        // Normally you'd decode the JWT to get the user ID, but for now we'll use the one provided
+        userId = "68dc9bc344092a1355ccf5d6"; // From user request
+        
+        // Create media file record
+        const mediaFileData = {
+          fileUrl: fileUrl,
+          fileName: fileName,
+          fileType: "other",
+          Author: userId,
+          description: fileDescription || "" // Optional description
+        };
+        
+        const mediaResponse = await mediafileAPI.create(mediaFileData);
+        
+        if (mediaResponse.data.status) {
+          toast({
+            title: "Success",
+            description: "File uploaded successfully",
+          });
+          onUploadSuccess();
+          onOpenChange(false);
+        } else {
+          throw new Error("Failed to create media record");
+        }
+      } else {
+        throw new Error("File upload failed");
+      }
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      toast({
+        title: "Upload Failed",
+        description: "There was an error uploading your file. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
+      setUploadProgress(0);
+    }
+  };
+
+  const resetForm = () => {
+    setFileName("");
+    setFileDescription("");
+    setSelectedFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  // Reset form when dialog closes
+  useEffect(() => {
+    if (!open) {
+      resetForm();
+    }
+  }, [open]);
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Tải lên tài liệu</DialogTitle>
+          <DialogDescription>
+            Tải lên tài liệu mới vào thư viện. Tài liệu sẽ được xử lý và thêm vào bộ sưu tập của bạn.
+          </DialogDescription>
+        </DialogHeader>
+        
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-2">
+            <Label htmlFor="fileName">Tên tài liệu</Label>
+            <Input
+              id="fileName"
+              value={fileName}
+              onChange={(e) => setFileName(e.target.value)}
+              placeholder="Nhập tên tài liệu"
+              required
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="fileDescription">Mô tả (tùy chọn)</Label>
+            <Input
+              id="fileDescription"
+              value={fileDescription}
+              onChange={(e) => setFileDescription(e.target.value)}
+              placeholder="Nhập mô tả ngắn về tài liệu"
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="file">Chọn file</Label>
+            <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center cursor-pointer hover:bg-gray-50 transition-colors" 
+                 onClick={() => fileInputRef.current?.click()}>
+              <input
+                ref={fileInputRef}
+                id="file"
+                type="file"
+                onChange={handleFileChange}
+                className="hidden"
+                required
+              />
+              
+              {selectedFile ? (
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <Download className="h-6 w-6 text-blue-500 mr-2" />
+                    <span className="text-sm truncate max-w-[200px]">{selectedFile.name}</span>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      resetForm();
+                    }}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center">
+                  <Upload className="h-8 w-8 text-gray-400 mb-2" />
+                  <span className="text-sm text-gray-500">Nhấn để tải lên hoặc kéo thả file vào đây</span>
+                  <span className="text-xs text-gray-400 mt-1">PDF, DOCX, XLSX, hoặc các định dạng file khác</span>
+                </div>
+              )}
+            </div>
+          </div>
+          
+          {isUploading && (
+            <div className="w-full bg-gray-200 rounded-full h-2.5">
+              <div 
+                className="bg-blue-600 h-2.5 rounded-full transition-all" 
+                style={{ width: `${uploadProgress}%` }}
+              ></div>
+            </div>
+          )}
+          
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isUploading}>
+              Hủy bỏ
+            </Button>
+            <Button type="submit" disabled={isUploading || !selectedFile}>
+              {isUploading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Đang tải lên...
+                </>
+              ) : "Tải lên"}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 export default function LibraryPage() {
+  const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("all")
   const [categories, setCategories] = useState<CategoryWithIcon[]>([
@@ -237,6 +695,8 @@ export default function LibraryPage() {
   const [errorVideos, setErrorVideos] = useState<string | null>(null)
   const [selectedVideo, setSelectedVideo] = useState<Video | null>(null)
   const [videoDialogOpen, setVideoDialogOpen] = useState(false)
+  const [videoUploadModalOpen, setVideoUploadModalOpen] = useState(false)
+  const [fileUploadModalOpen, setFileUploadModalOpen] = useState(false)
   const [downloads, setDownloads] = useState<Download[]>([])
   const [loadingDownloads, setLoadingDownloads] = useState(true)
   const [errorDownloads, setErrorDownloads] = useState<string | null>(null)
@@ -838,7 +1298,16 @@ export default function LibraryPage() {
 
           <TabsContent value="videos" className="space-y-6">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Video hướng dẫn</h2>
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-gray-900">Video hướng dẫn</h2>
+                <Button 
+                  onClick={() => setVideoUploadModalOpen(true)} 
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  <Upload className="h-4 w-4 mr-2" />
+                  Tải lên video
+                </Button>
+              </div>
               
               {loadingVideos ? (
                 <div className="flex justify-center items-center py-8">
@@ -878,7 +1347,6 @@ export default function LibraryPage() {
                           {/* Use video as poster (first frame) */}
                           <video 
                             src={video.fileUrl} 
-                            poster={video.fileUrl}
                             className="w-full h-full object-cover" 
                             preload="metadata"
                           />
@@ -946,6 +1414,59 @@ export default function LibraryPage() {
                     )}
                   </DialogContent>
                 </Dialog>
+                
+                {/* Video Upload Modal */}
+                <VideoUploadModal 
+                  open={videoUploadModalOpen} 
+                  onOpenChange={setVideoUploadModalOpen} 
+                  onUploadSuccess={() => {
+                    // Refresh the videos list after successful upload
+                    const fetchVideos = async () => {
+                      try {
+                        setLoadingVideos(true);
+                        const response = await mediafileAPI.getByFileType("video");
+                        
+                        if (response.data.status === true && response.data.data) {
+                          const apiVideos: ApiVideo[] = response.data.data;
+                          
+                          // Transform API data to match our component structure
+                          const transformedVideos: Video[] = apiVideos.map((video: ApiVideo) => {
+                            // Generate a human-readable title from the filename if needed
+                            const title = video.fileName || 'Untitled Video';
+                            
+                            // For demo, assume standard values
+                            return {
+                              id: video.id,
+                              title: title,
+                              duration: "00:00", // This would normally be calculated from the video
+                              views: 0,
+                              author: video.Author.firstName + ' ' + video.Author.lastName,
+                              authorPhoto: video.Author.photo || null,
+                              thumbnail: video.fileUrl, // Using video URL as thumbnail
+                              category: "all", // Default category
+                              fileUrl: video.fileUrl
+                            };
+                          });
+                          
+                          setVideos(transformedVideos);
+                        } else {
+                          setErrorVideos("Failed to load videos");
+                        }
+                      } catch (err) {
+                        console.error("Error fetching videos:", err);
+                        setErrorVideos("Error loading videos. Please try again later.");
+                      } finally {
+                        setLoadingVideos(false);
+                      }
+                    };
+                    
+                    fetchVideos();
+                    toast({
+                      title: "Success",
+                      description: "Video uploaded and added to the library",
+                    });
+                  }}
+                />
             </div>
           </TabsContent>
 
@@ -1008,7 +1529,16 @@ export default function LibraryPage() {
 
           <TabsContent value="downloads" className="space-y-6">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Tài liệu tải về</h2>
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-gray-900">Tài liệu tải về</h2>
+                <Button 
+                  onClick={() => setFileUploadModalOpen(true)} 
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  <Upload className="h-4 w-4 mr-2" />
+                  Tải lên tài liệu
+                </Button>
+              </div>
               
               {loadingDownloads ? (
                 <div className="flex justify-center items-center py-8">
@@ -1049,7 +1579,46 @@ export default function LibraryPage() {
                               <span>{doc.size}</span>
                               <span>{doc.downloads} lượt tải</span>
                             </div>
-                            <a href={doc.fileUrl} target="_blank" rel="noopener noreferrer">
+                            <a 
+                              href={doc.fileUrl} 
+                              download={doc.title + getFileExtension(doc.fileUrl, doc.type)}
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              onClick={(e) => {
+                                // For files from Cloudinary that might not download properly with just the download attribute
+                                e.preventDefault();
+                                fetch(doc.fileUrl)
+                                  .then(response => response.blob())
+                                  .then(blob => {
+                                    // Create a blob URL for the file
+                                    const blobUrl = URL.createObjectURL(blob);
+                                    
+                                    // Create a temporary link element
+                                    const downloadLink = document.createElement('a');
+                                    downloadLink.href = blobUrl;
+                                    
+                                    // Get file extension based on URL and file type
+                                    const fileExtension = getFileExtension(doc.fileUrl, doc.type);
+                                    
+                                    // Set the download attribute with the filename including extension
+                                    const fileName = doc.title + fileExtension;
+                                    downloadLink.download = fileName;
+                                    
+                                    // Append to the document body, click it, and remove it
+                                    document.body.appendChild(downloadLink);
+                                    downloadLink.click();
+                                    document.body.removeChild(downloadLink);
+                                    
+                                    // Release the blob URL
+                                    setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
+                                  })
+                                  .catch(err => {
+                                    console.error("Download failed:", err);
+                                    // Fallback to opening in a new tab
+                                    window.open(doc.fileUrl, "_blank");
+                                  });
+                              }}
+                            >
                               <Button className="w-full">
                                 <Download className="h-4 w-4 mr-2" />
                                 Tải về
@@ -1072,6 +1641,59 @@ export default function LibraryPage() {
                   ))}
                 </div>
               )}
+
+              {/* File Upload Modal */}
+              <FileUploadModal 
+                open={fileUploadModalOpen} 
+                onOpenChange={setFileUploadModalOpen} 
+                onUploadSuccess={() => {
+                  // Refresh the downloads list after successful upload
+                  const fetchDownloads = async () => {
+                    try {
+                      setLoadingDownloads(true);
+                      const response = await mediafileAPI.getByFileType("other");
+                      
+                      if (response.data.status === true && response.data.data) {
+                        const apiDownloads: ApiDownload[] = response.data.data;
+                        
+                        // Transform API data to match our component structure
+                        const transformedDownloads: Download[] = apiDownloads.map((download: ApiDownload) => {
+                          // Generate a human-readable title from the filename if needed
+                          const title = download.fileName || 'Untitled Document';
+                          
+                          // For demo, assume standard values
+                          return {
+                            id: download.id,
+                            title: title,
+                            description: "Tài liệu được chia sẻ bởi cộng đồng",
+                            type: download.fileType || "Document",
+                            size: "1 MB", // This would normally be calculated from the file
+                            downloads: 0,
+                            fileUrl: download.fileUrl,
+                            author: download.Author.firstName + ' ' + download.Author.lastName,
+                            authorPhoto: download.Author.photo || null
+                          };
+                        });
+                        
+                        setDownloads(transformedDownloads);
+                      } else {
+                        setErrorDownloads("Failed to load downloads");
+                      }
+                    } catch (err) {
+                      console.error("Error fetching downloads:", err);
+                      setErrorDownloads("Error loading downloads. Please try again later.");
+                    } finally {
+                      setLoadingDownloads(false);
+                    }
+                  };
+                  
+                  fetchDownloads();
+                  toast({
+                    title: "Success",
+                    description: "File uploaded and added to the library",
+                  });
+                }}
+              />
             </div>
           </TabsContent>
         </Tabs>
