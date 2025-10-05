@@ -1,6 +1,6 @@
 "use client";
-import { Baby, ChevronsDown, Github, Menu } from "lucide-react";
-import React from "react";
+import { Baby, ChevronsDown, Github, LogOut, Menu } from "lucide-react";
+import React, { useEffect, useState } from "react";
 import {
   Sheet,
   SheetContent,
@@ -22,6 +22,7 @@ import { Button } from "../ui/button";
 import Link from "next/link";
 import Image from "next/image";
 import { ToggleTheme } from "./toogle-theme";
+import { useRouter } from "next/navigation";
 
 interface RouteProps {
   href: string;
@@ -71,6 +72,25 @@ const featureList: FeatureProps[] = [
 
 export const Navbar = () => {
   const [isOpen, setIsOpen] = React.useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    // Check if user is logged in by looking for JWT token in localStorage
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem('jwtToken');
+      setIsLoggedIn(!!token);
+    }
+  }, []);
+
+  const handleLogout = () => {
+    // Remove JWT token from localStorage
+    localStorage.removeItem('jwtToken');
+    setIsLoggedIn(false);
+    // Redirect to home page
+    router.push('/');
+  };
+
   return (
     <header className="shadow-inner bg-opacity-15 w-[90%] md:w-[70%] lg:w-[75%] lg:max-w-screen-xl top-5 mx-auto sticky border border-secondary z-40 rounded-2xl flex justify-between items-center p-2 bg-card">
       <Link href="/" className="font-bold text-lg flex items-center">
@@ -116,10 +136,40 @@ export const Navbar = () => {
               </div>
             </div>
 
-            <SheetFooter className="flex-col sm:flex-col justify-start items-start">
+            <SheetFooter className="flex-col sm:flex-col justify-start items-start w-full">
               <Separator className="mb-2" />
-
-              <ToggleTheme />
+              
+              <div className="flex items-center justify-between w-full">
+                <ToggleTheme />
+                
+                {isLoggedIn ? (
+                  <Button 
+                    size="sm" 
+                    variant="destructive" 
+                    aria-label="Logout"
+                    onClick={() => {
+                      handleLogout();
+                      setIsOpen(false);
+                    }}
+                    className="flex items-center gap-1"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    Đăng xuất
+                  </Button>
+                ) : (
+                  <Button 
+                    asChild 
+                    size="sm" 
+                    variant="default" 
+                    aria-label="Login"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    <Link href="/sign-in">
+                      Đăng Nhập
+                    </Link>
+                  </Button>
+                )}
+              </div>
             </SheetFooter>
           </SheetContent>
         </Sheet>
@@ -177,14 +227,27 @@ export const Navbar = () => {
       <div className="hidden lg:flex">
         <ToggleTheme />
 
-        <Button asChild size="sm" variant="default" aria-label="Login">
-          <Link
-            aria-label="Login"
-            href="/sign-in"
+        {isLoggedIn ? (
+          <Button 
+            size="sm" 
+            variant="destructive" 
+            aria-label="Logout"
+            onClick={handleLogout}
+            className="flex items-center gap-1"
           >
-            Đăng Nhập
-          </Link>
-        </Button>
+            <LogOut className="h-4 w-4" />
+            Đăng xuất
+          </Button>
+        ) : (
+          <Button asChild size="sm" variant="default" aria-label="Login">
+            <Link
+              aria-label="Login"
+              href="/sign-in"
+            >
+              Đăng Nhập
+            </Link>
+          </Button>
+        )}
       </div>
     </header>
   );
