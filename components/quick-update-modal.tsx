@@ -3,52 +3,55 @@
 import type React from "react"
 
 import { useState } from "react"
-import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Badge } from "@/components/ui/badge"
-import { X, Weight, Ruler, Save, TrendingUp } from "lucide-react"
-
-// Thêm import cho toast
+import { X, Save } from "lucide-react"
 import { toast } from "@/hooks/use-toast"
 
 interface QuickUpdateModalProps {
   isOpen: boolean
   onClose: () => void
-  babyName: string
-  currentWeight?: string
-  currentHeight?: string
-  onUpdate?: (data: { weight?: string; height?: string }) => void
+  baby: {
+    _id: string
+    name: string
+    firstName?: string
+    lastName?: string
+    dob: string
+    gender?: "Male" | "Female"
+    avatar?: string
+  }
+  onUpdate?: (data: {
+    firstName?: string
+    lastName?: string
+    gender?: "Male" | "Female"
+    avatar?: string
+    dob?: string
+  }) => void
 }
 
 export function QuickUpdateModal({
   isOpen,
   onClose,
-  babyName,
-  currentWeight,
-  currentHeight,
+  baby,
   onUpdate,
-}: QuickUpdateModalProps) {
+}: Readonly<QuickUpdateModalProps>) {
   const [formData, setFormData] = useState({
-    weight: "",
-    height: "",
-    date: new Date().toISOString().split("T")[0],
-    notes: "",
-    location: "home", // home, hospital, clinic
+    firstName: baby.firstName || "",
+    lastName: baby.lastName || "",
+    gender: baby.gender || "Male",
+    avatar: baby.avatar || "",
+    dob: baby.dob || ""
   })
-
-  const [showComparison, setShowComparison] = useState(false)
 
   // Cập nhật hàm handleSubmit để hiện toast
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
 
     // Validate data
-    if (!formData.weight && !formData.height) {
+    if (!formData.firstName && !formData.lastName) {
       toast({
         title: "Lỗi nhập liệu",
-        description: "Vui lòng nhập ít nhất cân nặng hoặc chiều cao",
+        description: "Vui lòng nhập ít nhất họ hoặc tên",
         variant: "destructive",
       })
       return
@@ -57,19 +60,18 @@ export function QuickUpdateModal({
     // Call onUpdate callback if provided
     if (onUpdate) {
       onUpdate({
-        weight: formData.weight || undefined,
-        height: formData.height || undefined,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        gender: formData.gender,
+        avatar: formData.avatar,
+        dob: formData.dob
       })
     }
 
     // Hiện toast thành công
-    const updateInfo = []
-    if (formData.weight) updateInfo.push(`cân nặng ${formData.weight}kg`)
-    if (formData.height) updateInfo.push(`chiều cao ${formData.height}cm`)
-
     toast({
-      title: "Cập nhật thành công! 📏",
-      description: `Đã cập nhật ${updateInfo.join(" và ")} cho ${babyName}`,
+      title: "Cập nhật thành công! �",
+      description: `Đã cập nhật thông tin cho bé ${formData.firstName}`,
     })
 
     onClose()
@@ -78,30 +80,17 @@ export function QuickUpdateModal({
 
   const resetForm = () => {
     setFormData({
-      weight: "",
-      height: "",
-      date: new Date().toISOString().split("T")[0],
-      notes: "",
-      location: "home",
+      firstName: baby.firstName || "",
+      lastName: baby.lastName || "",
+      gender: baby.gender || "Male",
+      avatar: baby.avatar || "",
+      dob: baby.dob || ""
     })
-    setShowComparison(false)
   }
 
   const handleClose = () => {
     resetForm()
     onClose()
-  }
-
-  // Mock previous data for comparison
-  const previousData = {
-    weight: currentWeight?.replace(" kg", "") || "8.0",
-    height: currentHeight?.replace(" cm", "") || "68",
-    date: "15/11/2024",
-  }
-
-  const calculateChange = (current: string, previous: string) => {
-    const diff = Number.parseFloat(current) - Number.parseFloat(previous)
-    return diff > 0 ? `+${diff.toFixed(1)}` : diff.toFixed(1)
   }
 
   if (!isOpen) return null
@@ -110,156 +99,78 @@ export function QuickUpdateModal({
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
         <div className="sticky top-0 bg-white border-b px-6 py-4 flex items-center justify-between">
-          <h2 className="text-xl font-bold">Cập nhật nhanh - {babyName}</h2>
+          <h2 className="text-xl font-bold">Cập nhật thông tin - {baby.name}</h2>
           <Button variant="ghost" size="sm" onClick={handleClose}>
             <X className="h-4 w-4" />
           </Button>
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          {/* Current vs Previous */}
-          <Card className="bg-blue-50 border-blue-200">
-            <CardContent className="p-4">
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <p className="text-gray-600 mb-1">Cân nặng hiện tại</p>
-                  <p className="font-bold text-lg">{currentWeight || "8.2 kg"}</p>
-                </div>
-                <div>
-                  <p className="text-gray-600 mb-1">Chiều cao hiện tại</p>
-                  <p className="font-bold text-lg">{currentHeight || "69 cm"}</p>
-                </div>
-              </div>
-              <p className="text-xs text-gray-500 mt-2">Cập nhật lần cuối: {previousData.date}</p>
-            </CardContent>
-          </Card>
-
-          {/* Update Form */}
           <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Ngày đo *</label>
-              <Input
-                type="date"
-                required
-                value={formData.date}
-                onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-              />
-            </div>
-
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  <Weight className="inline h-4 w-4 mr-1" />
-                  Cân nặng (kg)
-                </label>
+                <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-2">Họ</label>
                 <Input
-                  type="number"
-                  step="0.1"
-                  placeholder="8.5"
-                  value={formData.weight}
-                  onChange={(e) => {
-                    setFormData({ ...formData, weight: e.target.value })
-                    setShowComparison(e.target.value !== "")
-                  }}
+                  id="lastName"
+                  type="text"
+                  placeholder="Nguyễn"
+                  value={formData.lastName}
+                  onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  <Ruler className="inline h-4 w-4 mr-1" />
-                  Chiều cao (cm)
-                </label>
+                <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-2">Tên</label>
                 <Input
-                  type="number"
-                  step="0.1"
-                  placeholder="70"
-                  value={formData.height}
-                  onChange={(e) => {
-                    setFormData({ ...formData, height: e.target.value })
-                    setShowComparison(e.target.value !== "")
-                  }}
+                  id="firstName"
+                  type="text"
+                  required
+                  placeholder="An"
+                  value={formData.firstName}
+                  onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
                 />
               </div>
             </div>
 
-            {/* Comparison */}
-            {showComparison && (formData.weight || formData.height) && (
-              <Card className="bg-green-50 border-green-200">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <TrendingUp className="h-4 w-4 text-green-600" />
-                    <span className="font-medium text-green-800">So sánh với lần trước</span>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    {formData.weight && (
-                      <div>
-                        <p className="text-gray-600">Cân nặng</p>
-                        <p className="font-bold">
-                          {formData.weight} kg
-                          <Badge variant="outline" className="ml-2 text-xs">
-                            {calculateChange(formData.weight, previousData.weight)} kg
-                          </Badge>
-                        </p>
-                      </div>
-                    )}
-                    {formData.height && (
-                      <div>
-                        <p className="text-gray-600">Chiều cao</p>
-                        <p className="font-bold">
-                          {formData.height} cm
-                          <Badge variant="outline" className="ml-2 text-xs">
-                            {calculateChange(formData.height, previousData.height)} cm
-                          </Badge>
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Nơi đo</label>
+              <label htmlFor="gender" className="block text-sm font-medium text-gray-700 mb-2">Giới tính</label>
               <select
+                id="gender"
                 className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                value={formData.location}
-                onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                value={formData.gender}
+                onChange={(e) => setFormData({ ...formData, gender: e.target.value as "Male" | "Female" })}
               >
-                <option value="home">Tại nhà</option>
-                <option value="hospital">Bệnh viện</option>
-                <option value="clinic">Phòng khám</option>
-                <option value="pharmacy">Nhà thuốc</option>
+                <option value="Male">Bé trai</option>
+                <option value="Female">Bé gái</option>
               </select>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Ghi chú</label>
-              <Textarea
-                placeholder="Ghi chú thêm về tình trạng của bé..."
-                rows={3}
-                value={formData.notes}
-                onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+              <label htmlFor="avatar" className="block text-sm font-medium text-gray-700 mb-2">Ảnh đại diện</label>
+              <Input
+                id="avatar"
+                type="text"
+                placeholder="URL ảnh đại diện"
+                value={formData.avatar}
+                onChange={(e) => setFormData({ ...formData, avatar: e.target.value })}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="dob" className="block text-sm font-medium text-gray-700 mb-2">Ngày sinh</label>
+              <Input
+                id="dob"
+                type="date"
+                value={formData.dob}
+                onChange={(e) => setFormData({ ...formData, dob: e.target.value })}
               />
             </div>
           </div>
-
-          {/* Tips */}
-          <Card className="bg-yellow-50 border-yellow-200">
-            <CardContent className="p-4">
-              <h4 className="font-medium text-yellow-800 mb-2">💡 Mẹo đo chính xác:</h4>
-              <ul className="text-sm text-yellow-700 space-y-1">
-                <li>• Cân bé vào cùng thời điểm trong ngày</li>
-                <li>• Đo chiều cao khi bé nằm thẳng, chân duỗi</li>
-                <li>• Cân khi bé đói, trước khi ăn</li>
-                <li>• Ghi lại ngay để không quên</li>
-              </ul>
-            </CardContent>
-          </Card>
 
           {/* Buttons */}
           <div className="flex gap-4 pt-4 border-t">
             <Button type="submit" className="flex-1">
               <Save className="h-4 w-4 mr-2" />
-              Lưu cập nhật
+              Lưu thông tin
             </Button>
             <Button type="button" variant="outline" onClick={handleClose}>
               Hủy
