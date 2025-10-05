@@ -1,10 +1,10 @@
 import axios from "axios";
 
 //For deployment
-const API_BASE_URL = 'https://notby-be-8q9y.onrender.com';
+// const API_BASE_URL = 'https://notby-be-8q9y.onrender.com';
 
-//For testing
-//const API_BASE_URL = 'http://localhost:5010';
+// For testing
+const API_BASE_URL = 'http://localhost:5010';
 
 const axiosClient = axios.create({
   baseURL: API_BASE_URL,
