@@ -5,6 +5,6 @@ export const articlesAPI = {
   getById: (id: string) => axiosClient.get(`/article/id/${id}`),
   getByTitle: (title: string) => axiosClient.get(`/article/title/${title}`),
   create: (data: any) => axiosClient.post("/article", data),
-  update: (id: string, data: any) => axiosClient.put(`/article/${id}`, data),
+  update: (id: string, data: any) => axiosClient.patch(`/article/${id}`, data),
   delete: (id: string) => axiosClient.delete(`/article/${id}`),
 };

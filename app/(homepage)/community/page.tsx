@@ -8,9 +8,11 @@ import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import ProtectedRoute from "@/components/layout/protected-route"
 import { categoryAPI } from "@/lib/api/categoryAPI"
 import { forumpostAPI } from "@/lib/api/forumpostAPI"
+import { forumcommentAPI } from "@/lib/api/forumcommentAPI"
 import { cloudinaryAPI } from "@/lib/api/cloudinaryAPI"
 import { mediafileAPI } from "@/lib/api/mediafileAPI"
 import { getAuthorId } from "@/lib/utils"
@@ -28,6 +30,7 @@ import {
   Star,
   Camera,
   Send,
+  Loader2,
   ThumbsUp,
   Eye,
   Award,
@@ -81,6 +84,23 @@ interface Discussion {
   };
 }
 
+// Define type for forum comment
+interface ForumComment {
+  id: string;
+  content: string;
+  author: string;
+  authorAvatar: string;
+  isExpert: boolean;
+  timeAgo: string;
+  likes: number;
+  postId: string;
+  mediaFile?: {
+    fileUrl: string;
+    fileName: string;
+    fileType: 'image' | 'video' | 'other';
+  } | null;
+}
+
 function CommunityPageContent() {
   const { toast } = useToast()
   const [newPostTitle, setNewPostTitle] = useState("")
@@ -91,6 +111,20 @@ function CommunityPageContent() {
   const [discussionsLoading, setDiscussionsLoading] = useState(true)
   const [forumCategories, setForumCategories] = useState<ForumCategory[]>([])
   const [discussions, setDiscussions] = useState<Discussion[]>([])
+  // Track which posts have been liked by the user
+  const [likedPosts, setLikedPosts] = useState<Record<string, boolean>>({})
+  // Track which comments have been liked by the user
+  const [likedComments, setLikedComments] = useState<Record<string, boolean>>({})
+  // State for forum post dialog
+  const [selectedPost, setSelectedPost] = useState<Discussion | null>(null)
+  const [postDialogOpen, setPostDialogOpen] = useState(false)
+  const [postComments, setPostComments] = useState<ForumComment[]>([])
+  const [loadingComments, setLoadingComments] = useState(false)
+  const [newComment, setNewComment] = useState("")
+  const [commentFile, setCommentFile] = useState<File | null>(null)
+  const [commentFilePreview, setCommentFilePreview] = useState<string | null>(null)
+  const [uploadingComment, setUploadingComment] = useState(false)
+  const commentFileInputRef = useRef<HTMLInputElement>(null)
 
   // File upload states
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
@@ -351,6 +385,263 @@ function CommunityPageContent() {
     }
   };
 
+  // Function to fetch comments for a post
+  const fetchPostComments = async (postId: string) => {
+    try {
+      setLoadingComments(true);
+      const response = await forumcommentAPI.getByPostId(postId);
+      
+      if (response && response.data) {
+        let commentsData = [];
+        
+        // Check if data is nested
+        if (response.data.data && Array.isArray(response.data.data)) {
+          commentsData = response.data.data;
+        } else if (Array.isArray(response.data)) {
+          commentsData = response.data;
+        }
+        
+        // Map API response to our component's format
+        const formattedComments = await Promise.all(commentsData.map(async (comment: any) => {
+          // Calculate time ago
+          const commentDate = new Date(comment.created_at);
+          const now = new Date();
+          const diffMinutes = Math.floor((now.getTime() - commentDate.getTime()) / (1000 * 60));
+          
+          let timeAgo;
+          if (diffMinutes < 1) {
+            timeAgo = "vừa xong";
+          } else if (diffMinutes < 60) {
+            timeAgo = `${diffMinutes} phút trước`;
+          } else if (diffMinutes < 1440) {
+            timeAgo = `${Math.floor(diffMinutes / 60)} giờ trước`;
+          } else {
+            timeAgo = `${Math.floor(diffMinutes / 1440)} ngày trước`;
+          }
+          
+          // Get author info - updated to match API response format
+          let authorName = "Người dùng";
+          let authorAvatar = "/placeholder.svg";
+          let isExpert = false;
+          
+          // Check for different user field structures (CreatedBy or Author)
+          const authorData = comment.CreatedBy || comment.Author;
+          
+          if (authorData) {
+            authorName = `${authorData.firstName || ""} ${authorData.lastName || ""}`.trim();
+            authorAvatar = authorData.photo || "/placeholder.svg";
+            isExpert = authorData.role === "Admin";
+          }
+          
+          // Check for attached file
+          let mediaFile = null;
+          
+          if (comment.File) {
+            const file = comment.File;
+            mediaFile = {
+              fileUrl: file.fileUrl,
+              fileName: file.fileName || '',
+              fileType: file.fileType || 'other'
+            };
+          }
+          
+          return {
+            id: comment._id,
+            content: comment.Content,
+            author: authorName,
+            authorAvatar: authorAvatar,
+            isExpert: isExpert,
+            timeAgo: timeAgo,
+            likes: comment.Likes || 0,
+            postId: comment.Post || comment.ForumPost, // Handle both Post and ForumPost fields
+            mediaFile: mediaFile
+          };
+        }));
+        
+        setPostComments(formattedComments);
+      } else {
+        setPostComments([]);
+      }
+    } catch (error) {
+      console.error("Failed to fetch comments:", error);
+      setPostComments([]);
+    } finally {
+      setLoadingComments(false);
+    }
+  };
+
+  // Handle opening the post dialog
+  const handleOpenPostDialog = (post: Discussion) => {
+    setSelectedPost(post);
+    setPostDialogOpen(true);
+    fetchPostComments(post.id);
+    // Reset likedComments state when opening a different post
+    setLikedComments({});
+  };
+
+  // Handle file selection for comment
+  const handleCommentFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    setCommentFile(file);
+    
+    // Create preview for image files
+    if (file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setCommentFilePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    } else if (file.type.startsWith('video/')) {
+      // For video files, we'll just show an icon or text
+      setCommentFilePreview('video');
+    } else {
+      setCommentFilePreview('file');
+    }
+  };
+  
+  // Remove selected file
+  const handleRemoveCommentFile = () => {
+    setCommentFile(null);
+    setCommentFilePreview(null);
+    if (commentFileInputRef.current) {
+      commentFileInputRef.current.value = '';
+    }
+  };
+  
+  // Handle adding a new comment
+  const handleAddComment = async () => {
+    if (!selectedPost || !newComment.trim()) return;
+    
+    try {
+      setUploadingComment(true);
+      
+      // Get user ID using the function from utils.ts
+      let userId;
+      try {
+        userId = getAuthorId();
+      } catch (error) {
+        // Fallback to hardcoded ID if token not available
+        userId = "68dc9bc344092a1355ccf5d6";
+        console.warn("Using fallback user ID");
+      }
+      
+      let fileId = null;
+      
+      // Handle file upload if present
+      if (commentFile) {
+        // 1. Upload to Cloudinary
+        const formData = new FormData();
+        formData.append("file", commentFile);
+        
+        const cloudinaryResponse = await cloudinaryAPI.upload(formData);
+        
+        if (cloudinaryResponse.data.status && cloudinaryResponse.data.data) {
+          const fileUrl = cloudinaryResponse.data.data;
+          
+          // 2. Create media file record
+          const fileType = commentFile.type.startsWith('image/') 
+            ? 'image' 
+            : commentFile.type.startsWith('video/') 
+              ? 'video' 
+              : 'other';
+          
+          const mediaFileData = {
+            fileUrl: fileUrl,
+            fileName: commentFile.name.split('.')[0] || 'Comment attachment',
+            fileType: fileType,
+            Author: userId
+          };
+          
+          const mediaResponse = await mediafileAPI.create(mediaFileData);
+          
+          if (mediaResponse.data.status && mediaResponse.data.data) {
+            fileId = mediaResponse.data.data._id || mediaResponse.data.data.id;
+          }
+        }
+      }
+      
+      // 3. Create the comment
+      const commentData = {
+        Content: newComment.trim(),
+        Post: selectedPost.id, // Updated to match API field name
+        File: fileId, // Include file ID if available
+        CreatedBy: userId,
+        Likes: 0
+      };
+      
+      const response = await forumcommentAPI.create(commentData);
+      
+      if (response && response.data && response.data.status) {
+        // Comment added successfully
+        toast({
+          title: "Bình luận thành công",
+          description: "Bình luận của bạn đã được đăng",
+        });
+        
+        // Clear comment input and file
+        setNewComment("");
+        handleRemoveCommentFile();
+        
+        // Refresh comments
+        fetchPostComments(selectedPost.id);
+      }
+    } catch (error) {
+      console.error("Failed to add comment:", error);
+      toast({
+        title: "Lỗi",
+        description: "Không thể đăng bình luận. Vui lòng thử lại sau.",
+        variant: "destructive"
+      });
+    } finally {
+      setUploadingComment(false);
+    }
+  };
+
+  // Handle liking/unliking comments
+  const handleCommentLike = async (comment: ForumComment) => {
+    try {
+      // Toggle like status in local state
+      const isCurrentlyLiked = likedComments[comment.id];
+      
+      // Optimistically update UI
+      const updatedComments = postComments.map(c => {
+        if (c.id === comment.id) {
+          return {
+            ...c,
+            likes: isCurrentlyLiked ? c.likes - 1 : c.likes + 1
+          };
+        }
+        return c;
+      });
+      
+      setPostComments(updatedComments);
+      
+      // Update liked status in state
+      setLikedComments(prev => ({
+        ...prev,
+        [comment.id]: !isCurrentlyLiked
+      }));
+      
+      // Send API request
+      await forumcommentAPI.update(comment.id, {
+        Likes: isCurrentlyLiked ? comment.likes - 1 : comment.likes + 1
+      });
+      
+    } catch (error) {
+      console.error("Failed to update comment like:", error);
+      toast({
+        title: "Lỗi",
+        description: "Không thể cập nhật lượt thích. Vui lòng thử lại sau.",
+        variant: "destructive"
+      });
+      
+      // Revert changes if API call fails
+      fetchPostComments(selectedPost?.id || "");
+    }
+  };
+
   useEffect(() => {
     // Fetch forum posts
     fetchForumPosts();
@@ -572,8 +863,9 @@ function CommunityPageContent() {
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 to-blue-50 py-8 px-4">
-      <div className="max-w-7xl mx-auto">
+    <>
+      <div className="min-h-screen bg-gradient-to-br from-pink-50 to-blue-50 py-8 px-4">
+        <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">Cộng đồng NoteBaby</h1>
@@ -784,7 +1076,11 @@ function CommunityPageContent() {
                   ) : discussions.length > 0 ? (
                     // Show discussions if available
                     discussions.map((discussion) => (
-                      <Card key={discussion.id} className="hover:shadow-md transition-shadow">
+                      <Card 
+                        key={discussion.id} 
+                        className="hover:shadow-md transition-shadow cursor-pointer"
+                        onClick={() => handleOpenPostDialog(discussion)}
+                      >
                         <CardContent className="p-6">
                           <div className="flex items-start gap-4">
                             <Avatar className="h-12 w-12">
@@ -885,15 +1181,113 @@ function CommunityPageContent() {
                                   <Eye className="h-4 w-4" />
                                   {discussion.views} lượt xem
                                 </span>
-                                <span className="flex items-center gap-1">
-                                  <ThumbsUp className="h-4 w-4" />
+                                <span 
+                                  className={`flex items-center gap-1 cursor-pointer hover:text-blue-600 transition-colors ${likedPosts[discussion.id] ? 'text-blue-600 font-medium' : ''}`}
+                                  onClick={async () => {
+                                    try {
+                                      // Get the current post to retrieve the latest like count
+                                      const response = await forumpostAPI.getById(discussion.id);
+                                      if (response && response.data && response.data.data) {
+                                        const currentLikes = response.data.data.Likes || 0;
+                                        
+                                        // Toggle like state
+                                        const isCurrentlyLiked = likedPosts[discussion.id];
+                                        let newLikeCount;
+                                        
+                                        if (isCurrentlyLiked) {
+                                          // Unlike - decrease count if previously liked
+                                          newLikeCount = Math.max(0, currentLikes - 1); // Prevent negative likes
+                                        } else {
+                                          // Like - increase count
+                                          newLikeCount = currentLikes + 1;
+                                        }
+                                        
+                                        // Update the post
+                                        const updateResponse = await forumpostAPI.update(discussion.id, {
+                                          Likes: newLikeCount
+                                        });
+                                        
+                                        // Update UI if successful
+                                        if (updateResponse && updateResponse.data && updateResponse.data.status) {
+                                          // Toggle liked state for this post
+                                          setLikedPosts(prev => ({
+                                            ...prev,
+                                            [discussion.id]: !isCurrentlyLiked
+                                          }));
+                                          
+                                          // Update the discussions state with the new like count
+                                          setDiscussions(prevDiscussions => 
+                                            prevDiscussions.map(post => 
+                                              post.id === discussion.id 
+                                                ? { ...post, likes: isCurrentlyLiked ? post.likes - 1 : post.likes + 1 } 
+                                                : post
+                                            )
+                                          );
+                                        }
+                                      }
+                                    } catch (error) {
+                                      console.error("Failed to update likes:", error);
+                                    }
+                                  }}
+                                >
+                                  <ThumbsUp className={`h-4 w-4 ${likedPosts[discussion.id] ? 'fill-blue-600 text-blue-600' : ''}`} />
                                   {discussion.likes} thích
                                 </span>
                               </div>
 
                               <div className="flex items-center gap-2">
-                                <Button variant="ghost" size="sm">
-                                  <ThumbsUp className="h-4 w-4" />
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm" 
+                                  className={likedPosts[discussion.id] ? 'text-blue-600' : ''}
+                                  onClick={async () => {
+                                    try {
+                                      // Get the current post to retrieve the latest like count
+                                      const response = await forumpostAPI.getById(discussion.id);
+                                      if (response && response.data && response.data.data) {
+                                        const currentLikes = response.data.data.Likes || 0;
+                                        
+                                        // Toggle like state
+                                        const isCurrentlyLiked = likedPosts[discussion.id];
+                                        let newLikeCount;
+                                        
+                                        if (isCurrentlyLiked) {
+                                          // Unlike - decrease count if previously liked
+                                          newLikeCount = Math.max(0, currentLikes - 1); // Prevent negative likes
+                                        } else {
+                                          // Like - increase count
+                                          newLikeCount = currentLikes + 1;
+                                        }
+                                        
+                                        // Update the post
+                                        const updateResponse = await forumpostAPI.update(discussion.id, {
+                                          Likes: newLikeCount
+                                        });
+                                        
+                                        // Update UI if successful
+                                        if (updateResponse && updateResponse.data && updateResponse.data.status) {
+                                          // Toggle liked state for this post
+                                          setLikedPosts(prev => ({
+                                            ...prev,
+                                            [discussion.id]: !isCurrentlyLiked
+                                          }));
+                                          
+                                          // Update the discussions state with the new like count
+                                          setDiscussions(prevDiscussions => 
+                                            prevDiscussions.map(post => 
+                                              post.id === discussion.id 
+                                                ? { ...post, likes: isCurrentlyLiked ? post.likes - 1 : post.likes + 1 } 
+                                                : post
+                                            )
+                                          );
+                                        }
+                                      }
+                                    } catch (error) {
+                                      console.error("Failed to update likes:", error);
+                                    }
+                                  }}
+                                >
+                                  <ThumbsUp className={`h-4 w-4 ${likedPosts[discussion.id] ? 'fill-blue-600 text-blue-600' : ''}`} />
                                 </Button>
                                 <Button variant="ghost" size="sm">
                                   <Share2 className="h-4 w-4" />
@@ -1201,5 +1595,368 @@ function CommunityPageContent() {
         </Tabs>
       </div>
     </div>
+    
+    {/* Post Dialog */}
+    <Dialog open={postDialogOpen} onOpenChange={setPostDialogOpen}>
+      <DialogContent className="max-w-4xl w-full">
+        {selectedPost && (
+          <div className="max-h-[80vh] overflow-y-auto">
+            <DialogHeader className="mb-4">
+              <DialogTitle className="text-xl">{selectedPost.title}</DialogTitle>
+              <DialogDescription className="flex items-center gap-2">
+                <Avatar className="h-6 w-6">
+                  <AvatarImage src={selectedPost.authorAvatar || "/placeholder.svg"} />
+                  <AvatarFallback>{selectedPost.author.charAt(0)}</AvatarFallback>
+                </Avatar>
+                <span className="font-medium">{selectedPost.author}</span>
+                {selectedPost.isExpert && (
+                  <Badge variant="secondary" className="ml-1">
+                    <Star className="h-3 w-3 mr-1 text-yellow-500 fill-yellow-500" />
+                    Chuyên gia
+                  </Badge>
+                )}
+                <span className="text-gray-500 text-sm">{selectedPost.timeAgo}</span>
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="mb-6">
+              <p className="text-gray-700 whitespace-pre-wrap">{selectedPost.content}</p>
+              
+              {/* Media File Display */}
+              {selectedPost.mediaFile && (
+                <div className="mt-4">
+                  {selectedPost.mediaFile.fileType === 'image' && (
+                    <div className="rounded-lg overflow-hidden border">
+                      <img 
+                        src={selectedPost.mediaFile.fileUrl} 
+                        alt={selectedPost.mediaFile.fileName || "Hình ảnh"}
+                        className="w-full max-h-96 object-contain"
+                      />
+                    </div>
+                  )}
+                  {selectedPost.mediaFile.fileType === 'video' && (
+                    <div className="rounded-lg overflow-hidden border">
+                      <video 
+                        src={selectedPost.mediaFile.fileUrl}
+                        controls
+                        className="w-full max-h-96"
+                        preload="metadata"
+                      >
+                        Trình duyệt của bạn không hỗ trợ video.
+                      </video>
+                    </div>
+                  )}
+                  {selectedPost.mediaFile.fileType === 'other' && (
+                    <div className="rounded-lg border p-4 bg-gray-50">
+                      <div className="flex items-center gap-3">
+                        <div className="flex-shrink-0">
+                          <Camera className="h-8 w-8 text-gray-500" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-gray-900 truncate">
+                            {selectedPost.mediaFile.fileName || "Tệp đính kèm"}
+                          </p>
+                          <p className="text-xs text-gray-500">Tệp đính kèm</p>
+                        </div>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => window.open(selectedPost.mediaFile!.fileUrl, '_blank')}
+                        >
+                          Xem
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+              
+              {/* Tags */}
+              <div className="flex flex-wrap gap-2 mt-4">
+                {selectedPost.tags.map((tag, index) => (
+                  <Badge key={index} variant="secondary" className="text-xs">
+                    #{tag}
+                  </Badge>
+                ))}
+              </div>
+              
+              {/* Post Stats */}
+              <div className="flex items-center justify-between mt-4 pb-4 border-b">
+                <div className="flex items-center gap-4 text-sm text-gray-600">
+                  <span className="flex items-center gap-1">
+                    <MessageCircle className="h-4 w-4" />
+                    {selectedPost.replies} trả lời
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Eye className="h-4 w-4" />
+                    {selectedPost.views} lượt xem
+                  </span>
+                  <span 
+                    className={`flex items-center gap-1 cursor-pointer hover:text-blue-600 transition-colors ${likedPosts[selectedPost.id] ? 'text-blue-600 font-medium' : ''}`}
+                    onClick={async (e) => {
+                      e.stopPropagation(); // Prevent dialog from closing
+                      try {
+                        // Get the current post to retrieve the latest like count
+                        const response = await forumpostAPI.getById(selectedPost.id);
+                        if (response && response.data && response.data.data) {
+                          const currentLikes = response.data.data.Likes || 0;
+                          
+                          // Toggle like state
+                          const isCurrentlyLiked = likedPosts[selectedPost.id];
+                          let newLikeCount;
+                          
+                          if (isCurrentlyLiked) {
+                            // Unlike - decrease count if previously liked
+                            newLikeCount = Math.max(0, currentLikes - 1); // Prevent negative likes
+                          } else {
+                            // Like - increase count
+                            newLikeCount = currentLikes + 1;
+                          }
+                          
+                          // Update the post
+                          const updateResponse = await forumpostAPI.update(selectedPost.id, {
+                            Likes: newLikeCount
+                          });
+                          
+                          // Update UI if successful
+                          if (updateResponse && updateResponse.data && updateResponse.data.status) {
+                            // Toggle liked state for this post
+                            setLikedPosts(prev => ({
+                              ...prev,
+                              [selectedPost.id]: !isCurrentlyLiked
+                            }));
+                            
+                            // Update the discussions state and selected post with the new like count
+                            setDiscussions(prevDiscussions => 
+                              prevDiscussions.map(post => 
+                                post.id === selectedPost.id 
+                                  ? { ...post, likes: isCurrentlyLiked ? post.likes - 1 : post.likes + 1 } 
+                                  : post
+                              )
+                            );
+                            setSelectedPost(prev => 
+                              prev ? {
+                                ...prev, 
+                                likes: isCurrentlyLiked ? prev.likes - 1 : prev.likes + 1
+                              } : null
+                            );
+                          }
+                        }
+                      } catch (error) {
+                        console.error("Failed to update likes:", error);
+                      }
+                    }}
+                  >
+                    <ThumbsUp className={`h-4 w-4 ${likedPosts[selectedPost.id] ? 'fill-blue-600 text-blue-600' : ''}`} />
+                    {selectedPost.likes} thích
+                  </span>
+                </div>
+              </div>
+            </div>
+            
+            {/* Comments Section */}
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Bình luận</h3>
+              
+              {/* New Comment Form */}
+              <div className="flex gap-3 mb-6">
+                <Avatar className="h-8 w-8">
+                  <AvatarFallback>U</AvatarFallback>
+                </Avatar>
+                <div className="flex-1">
+                  <Textarea
+                    placeholder="Viết bình luận của bạn..."
+                    className="mb-2 min-h-[80px]"
+                    value={newComment}
+                    onChange={(e) => setNewComment(e.target.value)}
+                  />
+                  
+                  {/* File Preview */}
+                  {commentFilePreview && (
+                    <div className="mb-3 relative rounded-md border overflow-hidden">
+                      {commentFilePreview === 'video' ? (
+                        <div className="flex items-center gap-2 p-2 bg-gray-50">
+                          <Video className="h-5 w-5 text-blue-600" />
+                          <span className="text-sm">{commentFile?.name}</span>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="ml-auto rounded-full h-6 w-6 p-0"
+                            onClick={handleRemoveCommentFile}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ) : commentFilePreview === 'file' ? (
+                        <div className="flex items-center gap-2 p-2 bg-gray-50">
+                          <Camera className="h-5 w-5 text-blue-600" />
+                          <span className="text-sm">{commentFile?.name}</span>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="ml-auto rounded-full h-6 w-6 p-0"
+                            onClick={handleRemoveCommentFile}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <>
+                          <img 
+                            src={commentFilePreview} 
+                            alt="Preview" 
+                            className="max-h-40 w-auto mx-auto"
+                          />
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="absolute top-1 right-1 rounded-full h-6 w-6 p-0 bg-white/80"
+                            onClick={handleRemoveCommentFile}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                  )}
+                  
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <input 
+                        type="file"
+                        id="commentFile"
+                        ref={commentFileInputRef}
+                        onChange={handleCommentFileChange}
+                        className="hidden"
+                        accept="image/*,video/*"
+                      />
+                      <Button 
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => commentFileInputRef.current?.click()}
+                        className="text-gray-600"
+                      >
+                        <Camera className="h-4 w-4 mr-1" />
+                        Đính kèm
+                      </Button>
+                    </div>
+                    <Button 
+                      onClick={handleAddComment} 
+                      disabled={!newComment.trim() || uploadingComment}
+                    >
+                      {uploadingComment ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Đang gửi...
+                        </>
+                      ) : 'Đăng bình luận'}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Comments List */}
+              <div className="space-y-4">
+                {loadingComments ? (
+                  // Loading state
+                  <div className="flex justify-center py-4">
+                    <Loader2 className="h-6 w-6 animate-spin text-gray-500" />
+                  </div>
+                ) : postComments.length > 0 ? (
+                  // Comments list
+                  postComments.map(comment => (
+                    <div key={comment.id} className="flex gap-3 pb-4 border-b border-gray-200">
+                      <Avatar className="h-8 w-8">
+                        <AvatarImage src={comment.authorAvatar || "/placeholder.svg"} />
+                        <AvatarFallback>{comment.author.charAt(0)}</AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1">
+                        <div className="bg-gray-50 rounded-lg p-3">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="font-medium">{comment.author}</span>
+                            {comment.isExpert && (
+                              <Star className="h-3 w-3 text-yellow-500 fill-yellow-500" />
+                            )}
+                            <span className="text-xs text-gray-500">{comment.timeAgo}</span>
+                          </div>
+                          <p className="text-gray-700">{comment.content}</p>
+                          
+                          {/* Display media if present */}
+                          {comment.mediaFile && (
+                            <div className="mt-2">
+                              {comment.mediaFile.fileType === 'image' && (
+                                <div className="rounded-lg overflow-hidden border mt-2">
+                                  <img 
+                                    src={comment.mediaFile.fileUrl} 
+                                    alt={comment.mediaFile.fileName || "Hình ảnh"}
+                                    className="max-h-60 w-auto cursor-pointer"
+                                    onClick={() => window.open(comment.mediaFile?.fileUrl, '_blank')}
+                                  />
+                                </div>
+                              )}
+                              {comment.mediaFile.fileType === 'video' && (
+                                <div className="rounded-lg overflow-hidden border mt-2">
+                                  <video 
+                                    src={comment.mediaFile.fileUrl}
+                                    controls
+                                    className="max-h-60 w-full"
+                                    preload="metadata"
+                                  >
+                                    Trình duyệt của bạn không hỗ trợ video.
+                                  </video>
+                                </div>
+                              )}
+                              {comment.mediaFile.fileType === 'other' && (
+                                <div className="rounded-lg border p-2 bg-gray-100 mt-2">
+                                  <div className="flex items-center gap-2">
+                                    <Camera className="h-4 w-4 text-gray-500" />
+                                    <span className="text-sm truncate">
+                                      {comment.mediaFile.fileName || "Tệp đính kèm"}
+                                    </span>
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm"
+                                      className="ml-auto py-0 h-6"
+                                      onClick={() => window.open(comment.mediaFile?.fileUrl, '_blank')}
+                                    >
+                                      Xem
+                                    </Button>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-3 mt-1 text-xs text-gray-500">
+                          <button 
+                            className={`flex items-center gap-1 hover:text-blue-600 transition-colors ${likedComments[comment.id] ? 'text-blue-600 font-medium' : ''}`}
+                            onClick={() => handleCommentLike(comment)}
+                          >
+                            <ThumbsUp className={`h-3 w-3 ${likedComments[comment.id] ? 'fill-blue-600 text-blue-600' : ''}`} />
+                            Thích
+                          </button>
+                          <span className={likedComments[comment.id] ? 'text-blue-600' : ''}>
+                            {comment.likes > 0 ? `${comment.likes} lượt thích` : ''}
+                          </span>
+                          <button className="hover:text-gray-700">Trả lời</button>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  // No comments
+                  <div className="text-center py-6 text-gray-500">
+                    <MessageCircle className="h-12 w-12 mx-auto text-gray-300 mb-2" />
+                    <p>Chưa có bình luận nào. Hãy là người đầu tiên bình luận!</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
+    </>
   )
 }

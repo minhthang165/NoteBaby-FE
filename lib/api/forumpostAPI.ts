@@ -6,6 +6,6 @@ export const forumpostAPI = {
   getByTitle: (title: string) => axiosClient.get(`/Forumpost/title/${title}`),
   getByAuthor: (author: string) => axiosClient.get(`/Forumpost/author/${author}`),
   create: (data: any) => axiosClient.post("/Forumpost", data),
-  update: (id: string, data: any) => axiosClient.put(`/Forumpost/${id}`, data),
+  update: (id: string, data: any) => axiosClient.patch(`/Forumpost/${id}`, data),
   delete: (id: string) => axiosClient.delete(`/Forumpost/${id}`),
 };
