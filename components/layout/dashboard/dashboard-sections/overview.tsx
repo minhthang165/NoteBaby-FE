@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -21,9 +21,6 @@ import {
   Trash2,
 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { useState, useEffect } from "react"
-
-// Thêm import cho toast và dialog
 import { toast } from "@/hooks/use-toast"
 import {
   AlertDialog,
@@ -38,6 +35,18 @@ import {
 import { useLocalStorage } from "@/hooks/use-local-storage"
 import { QuickUpdateModal } from "@/components/quick-update-modal"
 import { AddActivityModal } from "@/components/add-activity-modal"
+import { differenceInMonths, differenceInDays } from "date-fns"
+import { eventsAPI } from "@/lib/api/eventAPI"
+import { healthStatusAPI } from "@/lib/api/healthStatusAPI"
+import { babiesAPI } from "@/lib/api/babiesApi"
+import { diaryEntriesAPI } from "@/lib/api/diaryEntriesAPI"
+
+interface HealthStatus {
+  weight: number
+  height: number
+  checkedAt: string
+ 
+}
 
 interface Activity {
   id: string
@@ -49,21 +58,78 @@ interface Activity {
 }
 
 interface Event {
-  id: string
+  _id: string
   title: string
-  date: string
-  type: string
-  priority: string
-  description?: string
+  startAt: string
+  endAt: string
+  eventType: "school" | "extraClass" | "sport" | "other"
+  notes?: string
+  childId?: string
+  createdBy?: string
 }
 
-export function OverviewSection() {
+type OverviewSectionProps = {
+  baby: any
+}
+
+export function OverviewSection({ baby }: OverviewSectionProps) {
+  // Use per-baby localStorage key for activities
+  const babyActivitiesKey = baby?._id ? `baby-activities-${baby._id}` : "baby-activities"
+  const [activities, setActivities, activitiesMounted] = useLocalStorage<Activity[]>(babyActivitiesKey, [])
+
+  // Pagination for recent activities
+  const [activityPage, setActivityPage] = useState(1);
+  const activityPageSize = 4;
+  const activityTotalPages = Math.ceil(activities.length / activityPageSize);
+  const paginatedActivities = activities.slice((activityPage - 1) * activityPageSize, activityPage * activityPageSize);
+  // Log activity for healthStatus
+  const addActivityFromHealthStatus = (status: any) => {
+    const activity: Activity = {
+      id: Date.now().toString(),
+      type: "healthStatus",
+      content: `Thêm chỉ số sức khỏe: ${status.weight}kg, ${status.height}cm`,
+      icon: "Heart",
+      date: status.created_at || new Date().toISOString(),
+      time: formatTimeAgo(status.created_at || new Date().toISOString()),
+    };
+    setActivities((prev) => [activity, ...prev]);
+  };
+
+  // Log activity for medicalRecord
+  const addActivityFromMedicalRecord = (record: any) => {
+    const activity: Activity = {
+      id: Date.now().toString(),
+      type: "medicalRecord",
+      content: `Thêm hồ sơ khám: ${record.name} (${record.recordType === 'vaccination' ? 'Tiêm chủng' : 'Khám bệnh'})`,
+      icon: "BookOpen",
+      date: record.recordDate || new Date().toISOString(),
+      time: formatTimeAgo(record.recordDate || new Date().toISOString()),
+    };
+    setActivities((prev) => [activity, ...prev]);
+  };
+
+  // Export for use in other files
+  (window as any).addActivityFromHealthStatus = addActivityFromHealthStatus;
+  (window as any).addActivityFromMedicalRecord = addActivityFromMedicalRecord;
+  // Format event thành activity và lưu vào activities
+  const addActivityFromEvent = (event: Event, actionType: "add" | "update" = "add") => {
+    const activity: Activity = {
+      id: Date.now().toString(),
+      type: "event",
+      content:
+        actionType === "add"
+          ? `Thêm sự kiện: ${event.title}`
+          : `Cập nhật sự kiện: ${event.title}`,
+      icon: "Calendar",
+      date: event.startAt || new Date().toISOString(),
+      time: formatTimeAgo(event.startAt || new Date().toISOString()),
+    };
+    setActivities([activity, ...activities]);
+  };
   const [showQuickUpdate, setShowQuickUpdate] = useState(false)
   const [showAddActivity, setShowAddActivity] = useState(false)
   const [editingActivity, setEditingActivity] = useState<Activity | null>(null)
   const [editingEvent, setEditingEvent] = useState<Event | null>(null)
-
-  // Thêm state cho dialog xác nhận
   const [deleteDialog, setDeleteDialog] = useState<{
     isOpen: boolean
     type: "activity" | "event"
@@ -76,81 +142,130 @@ export function OverviewSection() {
     title: "",
   })
 
-  // Cập nhật useLocalStorage để sử dụng isMounted
-  const [activities, setActivities, activitiesMounted] = useLocalStorage<Activity[]>("baby-activities", [
-    {
-      id: "1",
-      type: "photo",
-      content: "Thêm 5 ảnh mới vào album 'Tháng 12'",
-      time: "2 giờ trước",
-      icon: "Camera",
-      date: new Date().toISOString(),
-    },
-    {
-      id: "2",
-      type: "milestone",
-      content: "Bé đã biết nói từ 'mama'",
-      time: "1 ngày trước",
-      icon: "BookOpen",
-      date: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-    },
-    {
-      id: "3",
-      type: "health",
-      content: "Cập nhật cân nặng: 8.2kg",
-      time: "3 ngày trước",
-      icon: "Heart",
-      date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-    },
-    {
-      id: "4",
-      type: "schedule",
-      content: "Thêm lịch học bơi vào thứ 7",
-      time: "1 tuần trước",
-      icon: "Calendar",
-      date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-    },
-  ])
+  // Events lấy từ API
+  const [events, setEvents] = useState<Event[]>([])
+  const [eventsLoading, setEventsLoading] = useState(true)
 
-  const [events, setEvents, eventsMounted] = useLocalStorage<Event[]>("baby-events", [
-    { id: "1", title: "Khám định kỳ", date: "25/12/2024", type: "health", priority: "high" },
-    { id: "2", title: "Học bơi", date: "28/12/2024", type: "activity", priority: "normal" },
-    { id: "3", title: "Sinh nhật bé", date: "15/04/2025", type: "milestone", priority: "high" },
-  ])
+  const fetchEvents = async () => {
+    if (!baby?._id) return
+    setEventsLoading(true)
+    try {
+      const response = await eventsAPI.getAll({ childId: baby._id })
+      // If response is in expected format
+      if (Array.isArray(response.data)) {
+        setEvents(response.data)
+      } else {
+        setEvents([])
+      }
+    } catch (error) {
+      console.error("Failed to fetch events:", error)
+      setEvents([])
+    } finally {
+      setEventsLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchEvents()
+  }, [baby?._id])
 
   const [babyStats, setBabyStats, statsMounted] = useLocalStorage("baby-stats", {
-    weight: "8.2 kg",
-    height: "69 cm",
-    photos: 247,
-    notes: 32,
+    weight: "--",
+    height: "--",
+    photos: 0,
+    notes: 0,
   })
 
-  // Mock data cho bé hiện tại
-  const currentBaby = {
-    name: "Bé Minh",
-    age: "8 tháng 15 ngày",
-    birthDate: "15/04/2024",
-    avatar: "/placeholder.svg?height=60&width=60",
-    gender: "boy",
-    weight: babyStats.weight,
-    height: babyStats.height,
-  }
+  // State for milestones/diary entries
+  const [milestones, setMilestones] = useState<any[]>([])
+  const [milestonesLoading, setMilestonesLoading] = useState(true)
 
+  // State for upcoming appointment
+  const [appointments, setAppointments] = useState<any[]>([]);
+  const [appointmentsLoading, setAppointmentsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchDiaryEntries = async () => {
+      if (!baby?._id) {
+        setMilestones([])
+        setMilestonesLoading(false)
+        return
+      }
+      setMilestonesLoading(true)
+      try {
+        const res = await diaryEntriesAPI.getAll({ childId: baby._id })
+        setMilestones(res.data?.data?.data || [])
+      } catch (err) {
+        setMilestones([])
+      } finally {
+        setMilestonesLoading(false)
+      }
+    }
+    fetchDiaryEntries()
+  }, [baby?._id])
+
+  // Fetch upcoming appointments (medical records)
+  useEffect(() => {
+    const fetchAppointments = async () => {
+      if (!baby?._id) {
+        setAppointments([]);
+        setAppointmentsLoading(false);
+        return;
+      }
+      setAppointmentsLoading(true);
+      try {
+        const res = await import('@/lib/api/medicalRecordAPI').then(m => m.medicalRecordsAPI.getAll({ childId: baby._id, sortOrder: 'asc', sortBy: 'recordDate' }));
+        // Only show future appointments (recordDate >= today)
+        const now = new Date();
+        const all = res.data || [];
+        const upcoming = all.filter((a: any) => new Date(a.recordDate) >= now);
+        setAppointments(upcoming);
+      } catch (err) {
+        setAppointments([]);
+      } finally {
+        setAppointmentsLoading(false);
+      }
+    };
+    fetchAppointments();
+  }, [baby?._id]);
+  const [healthStatusList, setHealthStatusList] = useState<HealthStatus[]>([])
+  const [healthStatusLoading, setHealthStatusLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchHealthStatus = async () => {
+      if (!baby?._id) return
+      setHealthStatusLoading(true)
+      try {
+        const res = await healthStatusAPI.getAll({ childId: baby._id })
+        setHealthStatusList(res.data || [])
+      } catch (err) {
+        setHealthStatusList([])
+      } finally {
+        setHealthStatusLoading(false)
+      }
+    }
+    fetchHealthStatus()
+  }, [baby?._id])
+
+  // Always pick the entry with the latest created_at date (sort by created_at desc)
+  const latestHealthStatus = healthStatusList.length > 0
+    ? [...healthStatusList].sort((a, b) => new Date((b as any).created_at || b.checkedAt).getTime() - new Date((a as any).created_at || a.checkedAt).getTime())[0]
+    : null;
   const stats = [
     {
       title: "Cân nặng hiện tại",
-      value: babyStats.weight,
+      value: latestHealthStatus ? `${latestHealthStatus.weight} kg` : babyStats.weight,
       icon: Weight,
       color: "text-blue-600",
-      change: "+0.3kg tuần này",
+      change: latestHealthStatus ? `Cập nhật: ${latestHealthStatus.checkedAt}` : "+0.3kg tuần này",
       action: () => setShowQuickUpdate(true),
     },
     {
       title: "Chiều cao hiện tại",
-      value: babyStats.height,
+      value: latestHealthStatus ? `${latestHealthStatus.height} cm` : babyStats.height,
       icon: Ruler,
       color: "text-green-600",
-      change: "+1cm tuần này",
+      change: latestHealthStatus ? `Cập nhật: ${latestHealthStatus.checkedAt}` : "+1cm tuần này",
       action: () => setShowQuickUpdate(true),
     },
     {
@@ -162,27 +277,13 @@ export function OverviewSection() {
     },
     {
       title: "Ghi chú phát triển",
-      value: babyStats.notes.toString(),
+      value: milestonesLoading ? "--" : milestones.length.toString(),
       icon: BookOpen,
       color: "text-orange-600",
-      change: "+3 tuần này",
+      change: milestonesLoading ? "" : `+${milestones.length} tổng nhật ký`,
     },
   ]
 
-  const siblings = [
-    {
-      name: "Bé An",
-      age: "2 tuổi 4 tháng",
-      avatar: "/placeholder.svg?height=40&width=40",
-      recentActivity: "Thêm ảnh 1 giờ trước",
-    },
-    {
-      name: "Bé Khôi",
-      age: "1 tuổi",
-      avatar: "/placeholder.svg?height=40&width=40",
-      recentActivity: "Ghi chú phát triển 2 ngày trước",
-    },
-  ]
 
   const getIconComponent = (iconName: string) => {
     const icons: { [key: string]: any } = {
@@ -205,172 +306,73 @@ export function OverviewSection() {
     return `${Math.floor(diffInHours / 168)} tuần trước`
   }
 
-  // Cập nhật hàm handleAddActivity để hiện toast
-  const handleAddActivity = (newActivity: Omit<Activity, "id" | "time">) => {
-    const activity: Activity = {
-      ...newActivity,
-      id: Date.now().toString(),
-      time: formatTimeAgo(newActivity.date),
-    }
-    setActivities([activity, ...activities])
+  
 
-    // Hiện toast thành công
-    toast({
-      title: "Thêm hoạt động thành công! 🎉",
-      description: `Đã thêm "${newActivity.content}" vào nhật ký của ${currentBaby.name}`,
-    })
+  
+const handleAddEvent = async (newEventData: Omit<Event, "_id" | "childId">) => {
+  if (!baby?._id) {
+    toast({ title: "Lỗi", description: "Không tìm thấy thông tin bé", variant: "destructive" });
+    return;
   }
+  const payload = {
+    ...newEventData,
+    childId: baby._id,
+  };
+  try {
+    const res = await eventsAPI.create(payload);
+    toast({ title: "Thành công", description: "Đã thêm sự kiện mới." });
+    if (res) {
+      addActivityFromEvent(res, "add");
+    }
+    fetchEvents();
+  } catch (err) {
+    toast({ title: "Lỗi", description: "Không thể thêm sự kiện, vui lòng thử lại.", variant: "destructive" });
+  }
+};
 
-  // Cập nhật hàm handleUpdateActivity để hiện toast
-  const handleUpdateActivity = (updatedActivity: Activity | Omit<Activity, "id" | "time">) => {
-    // If updatedActivity does not have id/time, use editingActivity as base
-    if (!('id' in updatedActivity) && editingActivity) {
-      const fullActivity: Activity = {
-        ...editingActivity,
-        ...updatedActivity,
-        time: formatTimeAgo(editingActivity.date),
+  const handleUpdateEvent = async (updatedEvent: Event) => {
+    if (!baby?._id) {
+      toast({ title: "Lỗi", description: "Không tìm thấy thông tin bé", variant: "destructive" });
+      return;
+    }
+    try {
+      // Ensure childId and remove _id from payload
+      const { _id, ...updateData } = updatedEvent;
+      const payload = {
+        ...updateData,
+        childId: baby._id, // Make sure childId is included in update
+      };
+      const res = await eventsAPI.update(_id, payload);
+      toast({ title: "Cập nhật sự kiện thành công!", description: `Đã cập nhật sự kiện "${updatedEvent.title}"` });
+      if (res) {
+        addActivityFromEvent(res, "update");
       }
-      setActivities(
-        activities.map((activity) =>
-          activity.id === fullActivity.id
-            ? { ...fullActivity, time: formatTimeAgo(fullActivity.date) }
-            : activity,
-        ),
-      )
-      setEditingActivity(null)
-
-      // Hiện toast thành công
-      toast({
-        title: "Cập nhật hoạt động thành công! ✅",
-        description: `Đã cập nhật "${fullActivity.content}"`,
-      })
-    } else if ('id' in updatedActivity) {
-      setActivities(
-        activities.map((activity) =>
-          activity.id === updatedActivity.id
-            ? { ...updatedActivity, time: formatTimeAgo(updatedActivity.date) }
-            : activity,
-        ),
-      )
-      setEditingActivity(null)
-
-      // Hiện toast thành công
-      toast({
-        title: "Cập nhật hoạt động thành công! ✅",
-        description: `Đã cập nhật "${updatedActivity.content}"`,
-      })
+      fetchEvents();
+      setEditingEvent(null);
+    } catch (err) {
+      toast({ title: "Lỗi", description: "Không thể cập nhật sự kiện", variant: "destructive" });
     }
   }
 
-  // Cập nhật hàm handleDeleteActivity để dùng dialog
-  const handleDeleteActivity = (id: string) => {
-    const activity = activities.find((a) => a.id === id)
-    if (activity) {
-      setDeleteDialog({
-        isOpen: true,
-        type: "activity",
-        id,
-        title: activity.content,
-      })
+  const handleDeleteEvent = async (_id: string) => {
+    try {
+      await eventsAPI.remove(_id)
+      toast({ title: "Đã xóa sự kiện!", description: "Sự kiện đã được xóa khỏi lịch", variant: "destructive" })
+      fetchEvents()
+    } catch (err) {
+      toast({ title: "Lỗi", description: "Không thể xóa sự kiện", variant: "destructive" })
     }
   }
 
-  // Hàm xác nhận xóa activity
-  const confirmDeleteActivity = () => {
-    setActivities(activities.filter((activity) => activity.id !== deleteDialog.id))
+  const confirmDeleteEvent = async () => {
+    if (deleteDialog.id) {
+      await handleDeleteEvent(deleteDialog.id)
+    }
     setDeleteDialog({ isOpen: false, type: "activity", id: "", title: "" })
-
-    // Hiện toast thành công
-    toast({
-      title: "Đã xóa hoạt động! 🗑️",
-      description: "Hoạt động đã được xóa khỏi nhật ký",
-      variant: "destructive",
-    })
   }
 
-  // Cập nhật hàm handleAddEvent để hiện toast
-  const handleAddEvent = (newEvent: Omit<Event, "id">) => {
-    const event: Event = {
-      ...newEvent,
-      id: Date.now().toString(),
-    }
-    setEvents([...events, event])
+ 
 
-    // Hiện toast thành công
-    toast({
-      title: "Thêm sự kiện thành công! 📅",
-      description: `Đã thêm sự kiện "${newEvent.title}" vào lịch`,
-    })
-  }
-
-  // Cập nhật hàm handleUpdateEvent để hiện toast
-  const handleUpdateEvent = (updatedEvent: Event) => {
-    setEvents(events.map((event) => (event.id === updatedEvent.id ? updatedEvent : event)))
-    setEditingEvent(null)
-
-    // Hiện toast thành công
-    toast({
-      title: "Cập nhật sự kiện thành công! ✅",
-      description: `Đã cập nhật sự kiện "${updatedEvent.title}"`,
-    })
-  }
-
-  // Cập nhật hàm handleDeleteEvent để dùng dialog
-  const handleDeleteEvent = (id: string) => {
-    const event = events.find((e) => e.id === id)
-    if (event) {
-      setDeleteDialog({
-        isOpen: true,
-        type: "event",
-        id,
-        title: event.title,
-      })
-    }
-  }
-
-  // Hàm xác nhận xóa event
-  const confirmDeleteEvent = () => {
-    setEvents(events.filter((event) => event.id !== deleteDialog.id))
-    setDeleteDialog({ isOpen: false, type: "event", id: "", title: "" })
-
-    // Hiện toast thành công
-    toast({
-      title: "Đã xóa sự kiện! 🗑️",
-      description: "Sự kiện đã được xóa khỏi lịch",
-      variant: "destructive",
-    })
-  }
-
-  // Cập nhật hàm handleQuickUpdate để hiện toast
-  const handleQuickUpdate = (data: { weight?: string; height?: string }) => {
-    setBabyStats((prev) => ({
-      ...prev,
-      weight: data.weight ? `${data.weight} kg` : prev.weight,
-      height: data.height ? `${data.height} cm` : prev.height,
-    }))
-
-    // Add activity for the update
-    const updateContent = []
-    if (data.weight) updateContent.push(`cân nặng: ${data.weight}kg`)
-    if (data.height) updateContent.push(`chiều cao: ${data.height}cm`)
-
-    if (updateContent.length > 0) {
-      handleAddActivity({
-        type: "health",
-        content: `Cập nhật ${updateContent.join(", ")}`,
-        icon: "Heart",
-        date: new Date().toISOString(),
-      })
-    }
-
-    // Hiện toast thành công
-    toast({
-      title: "Cập nhật thông số thành công! 📏",
-      description: `Đã cập nhật ${updateContent.join(", ")} cho ${currentBaby.name}`,
-    })
-  }
-
-  // Update time ago for activities every minute
   useEffect(() => {
     if (!activitiesMounted) return
 
@@ -386,8 +388,7 @@ export function OverviewSection() {
     return () => clearInterval(interval)
   }, [activitiesMounted, setActivities])
 
-  // Hiển thị loading state cho đến khi tất cả dữ liệu được load
-  if (!activitiesMounted || !eventsMounted || !statsMounted) {
+  if (!activitiesMounted || !statsMounted) {
     return (
       <div className="space-y-6">
         <div className="animate-pulse">
@@ -406,30 +407,41 @@ export function OverviewSection() {
     )
   }
 
+  if (!baby) return null
+
+  // Tính số tháng và ngày tuổi
+  const dob = new Date(baby.dob)
+  const now = new Date()
+  const months = differenceInMonths(now, dob)
+  const days = differenceInDays(now, new Date(dob.getFullYear(), dob.getMonth() + months, dob.getDate()))
+
+  // Lấy tên đầy đủ
+  const fullName = `${baby.lastName ? baby.lastName : ""} ${baby.firstName ? baby.firstName : ""}`.trim()
+
   return (
     <div className="space-y-6">
-      {/* Welcome Section with Current Baby */}
+      {/* Welcome Section */}
       <Card className="bg-gradient-to-r from-blue-50 to-pink-50 border-0">
         <CardContent className="p-6">
           <div className="flex items-center gap-4">
             <Avatar className="h-16 w-16">
-              <AvatarImage src={currentBaby.avatar || "/placeholder.svg"} />
+              <AvatarImage src={baby.avatar || "/placeholder.svg"} />
               <AvatarFallback className="bg-blue-100 text-blue-600 text-xl">
-                {currentBaby.name.split(" ")[1]?.charAt(0)}
+                {baby.firstName?.charAt(0)}
               </AvatarFallback>
             </Avatar>
             <div className="flex-1">
               <h1 className="text-2xl font-bold text-gray-900 mb-1">Chào mừng trở lại! </h1>
               <p className="text-gray-600 mb-2">
-                Hôm nay {currentBaby.name} đã {currentBaby.age} tuổi
+                Hôm nay {fullName} đã {months} tháng {days} ngày tuổi
               </p>
               <div className="flex items-center gap-4 text-sm text-gray-500">
                 <span className="flex items-center gap-1">
                   <Cake className="h-4 w-4" />
-                  Sinh ngày {currentBaby.birthDate}
+                  Sinh ngày {new Date(baby.dob).toLocaleDateString("vi-VN")}
                 </span>
                 <Badge variant="outline" className="bg-white">
-                  {currentBaby.gender === "boy" ? "Bé trai" : "Bé gái"}
+                        {baby.gender === "Male" ? "Bé trai" : "Bé gái"}
                 </Badge>
               </div>
             </div>
@@ -437,15 +449,16 @@ export function OverviewSection() {
               <Button variant="outline" onClick={() => setShowQuickUpdate(true)}>
                 <Edit className="h-4 w-4 mr-2" />
                 Cập nhật nhanh
-              </Button>
-              <Button className="hidden sm:flex" onClick={() => setShowAddActivity(true)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Thêm hoạt động
-              </Button>
+              </Button> 
             </div>
           </div>
         </CardContent>
       </Card>
+
+      {/* Stats Cards Section (giả định có sẵn) */}
+      {/* ...existing code for stats cards... */}
+
+      {/* ...existing code for Activities & Events table/grid... */}
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -478,13 +491,9 @@ export function OverviewSection() {
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center gap-2">
                 <Clock className="h-5 w-5" />
-                Hoạt động gần đây - {currentBaby.name}
+                Hoạt động gần đây - {fullName}
               </CardTitle>
-              <Button size="sm" onClick={() => setShowAddActivity(true)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Thêm
-              </Button>
-            </div>
+                    </div>
           </CardHeader>
           <CardContent className="space-y-4">
             {activities.length === 0 ? (
@@ -496,33 +505,36 @@ export function OverviewSection() {
                 </Button>
               </div>
             ) : (
-              activities.map((activity) => {
-                const Icon = getIconComponent(activity.icon)
-                return (
-                  <div
-                    key={activity.id}
-                    className="flex items-start gap-3 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors group"
-                  >
-                    <Icon className="h-5 w-5 text-gray-600 mt-0.5" />
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-900">{activity.content}</p>
-                      <p className="text-xs text-gray-500">{activity.time}</p>
+              <>
+                {paginatedActivities.map((activity) => {
+                  const Icon = getIconComponent(activity.icon)
+                  return (
+                    <div
+                      key={activity.id}
+                      className="flex items-start gap-3 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors group"
+                    >
+                      <Icon className="h-5 w-5 text-gray-600 mt-0.5" />
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-gray-900">{activity.content}</p>
+                        <p className="text-xs text-gray-500">{activity.time}</p>
+                      </div>
                     </div>
-                    <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
-                      <Button variant="ghost" size="sm" onClick={() => setEditingActivity(activity)}>
-                        <Edit className="h-3 w-3" />
-                      </Button>
-                      <Button variant="ghost" size="sm" onClick={() => handleDeleteActivity(activity.id)}>
-                        <Trash2 className="h-3 w-3" />
-                      </Button>
-                    </div>
+                  )
+                })}
+                {/* Pagination controls for activities */}
+                {activityTotalPages > 1 && (
+                  <div className="flex justify-center items-center gap-2 mt-4">
+                    <Button variant="outline" size="sm" onClick={() => setActivityPage(activityPage - 1)} disabled={activityPage === 1}>
+                      Trước
+                    </Button>
+                    <span className="text-sm">Trang {activityPage} / {activityTotalPages}</span>
+                    <Button variant="outline" size="sm" onClick={() => setActivityPage(activityPage + 1)} disabled={activityPage === activityTotalPages}>
+                      Sau
+                    </Button>
                   </div>
-                )
-              })
-            )}
-            <Button variant="outline" className="w-full">
-              Xem tất cả hoạt động ({activities.length})
-            </Button>
+                )}
+              </>
+            )}   
           </CardContent>
         </Card>
 
@@ -534,16 +546,15 @@ export function OverviewSection() {
                 <Calendar className="h-5 w-5" />
                 Sự kiện sắp tới
               </CardTitle>
-              <Button
-                size="sm"
-                onClick={() => setEditingEvent({ id: "", title: "", date: "", type: "activity", priority: "normal" })}
-              >
+              <Button size="sm" onClick={() => setEditingEvent({ _id: '', title: '', startAt: '', endAt: '', eventType: 'other' })}>
                 <Plus className="h-4 w-4" />
               </Button>
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
-            {events.length === 0 ? (
+            {eventsLoading ? (
+              <div className="text-center py-8 text-gray-500">Đang tải sự kiện...</div>
+            ) : events.length === 0 ? (
               <div className="text-center py-8 text-gray-500">
                 <Calendar className="h-12 w-12 mx-auto mb-3 opacity-50" />
                 <p>Chưa có sự kiện nào</p>
@@ -551,159 +562,150 @@ export function OverviewSection() {
                   variant="outline"
                   size="sm"
                   className="mt-2"
-                  onClick={() => setEditingEvent({ id: "", title: "", date: "", type: "activity", priority: "normal" })}
+                  onClick={() => setEditingEvent(null)}
                 >
                   Thêm sự kiện đầu tiên
                 </Button>
               </div>
             ) : (
-              events.map((event) => (
-                <div key={event.id} className="flex items-center justify-between p-3 rounded-lg bg-blue-50 group">
-                  <div className="flex-1">
-                    <p className="font-medium text-gray-900">{event.title}</p>
-                    <p className="text-sm text-gray-600">{event.date}</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge
-                      variant={
-                        event.type === "health" ? "destructive" : event.type === "milestone" ? "default" : "secondary"
-                      }
-                    >
-                      {event.type === "health" ? "Sức khỏe" : event.type === "milestone" ? "Cột mốc" : "Hoạt động"}
-                    </Badge>
-                    <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
-                      <Button variant="ghost" size="sm" onClick={() => setEditingEvent(event)}>
-                        <Edit className="h-3 w-3" />
-                      </Button>
-                      <Button variant="ghost" size="sm" onClick={() => handleDeleteEvent(event.id)}>
-                        <Trash2 className="h-3 w-3" />
-                      </Button>
+              <>
+                {events.map((event) => (
+                  <div key={event._id} className="flex items-center justify-between p-3 rounded-lg bg-blue-50 group">
+                    <div className="flex-1">
+                      <p className="font-medium text-gray-900">{event.title}</p>
+                      <p className="text-sm text-gray-600">
+                        {new Date(event.startAt).toLocaleDateString("vi-VN")}
+                        {event.endAt && event.endAt !== event.startAt
+                          ? ` - ${new Date(event.endAt).toLocaleDateString("vi-VN")}`
+                          : ""}
+                      </p>
+                      {event.notes && <p className="text-xs text-gray-500">{event.notes}</p>}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge>
+                        {event.eventType === "sport"
+                          ? "Thể thao"
+                          : event.eventType === "school"
+                          ? "Học tập"
+                          : event.eventType === "extraClass"
+                          ? "Lớp thêm"
+                          : "Khác"}
+                      </Badge>
+                      <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+                        <Button variant="ghost" size="sm" onClick={() => setEditingEvent(event)}>
+                          <Edit className="h-3 w-3" />
+                        </Button>
+                        <Button variant="ghost" size="sm" onClick={() => setDeleteDialog({
+                          isOpen: true,
+                          type: "event",
+                          id: event._id,
+                          title: event.title,
+                        })}>
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))
+                ))}
+                <Button variant="outline" className="w-full">
+                  Xem lịch đầy đủ ({events.length})
+                </Button>
+              </>
             )}
-            <Button variant="outline" className="w-full">
-              Xem lịch đầy đủ ({events.length})
-            </Button>
           </CardContent>
         </Card>
       </div>
-
-      {/* Other Children Summary */}
-      {siblings.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Users className="h-5 w-5" />
-              Các bé khác trong gia đình
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid md:grid-cols-2 gap-4">
-              {siblings.map((sibling, index) => (
-                <div
-                  key={index}
-                  className="flex items-center gap-3 p-4 border rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
-                >
-                  <Avatar className="h-12 w-12">
-                    <AvatarImage src={sibling.avatar || "/placeholder.svg"} />
-                    <AvatarFallback className="bg-pink-100 text-pink-600">
-                      {sibling.name.split(" ")[1]?.charAt(0)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1">
-                    <p className="font-medium text-gray-900">{sibling.name}</p>
-                    <p className="text-sm text-gray-600">{sibling.age}</p>
-                    <p className="text-xs text-gray-500">{sibling.recentActivity}</p>
-                  </div>
-                  <Button variant="ghost" size="sm">
-                    Xem
-                  </Button>
+  {(!appointmentsLoading && appointments.length > 0) && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+          <Card className="shadow-md border rounded-xl col-span-1">
+            <CardHeader className="bg-gradient-to-r from-blue-50 to-green-50 rounded-t-xl">
+              <CardTitle className="text-lg font-bold text-blue-700">Lịch hẹn sắp tới</CardTitle>
+              <div className="flex items-center gap-2 mt-2">
+                {appointments[0].recordType === 'vaccination' ?
+                  <Calendar className="h-5 w-5 text-blue-500" /> :
+                  <Ruler className="h-5 w-5 text-green-500" />
+                }
+                <p className="text-sm text-gray-500">
+                  {appointments[0].recordType === 'vaccination' ? 'Tiêm chủng' : 'Khám bệnh'}
+                </p>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div>
+                <p className="font-medium text-gray-600">Tên lịch hẹn:</p>
+                <p className="text-blue-700 font-semibold">{appointments[0].name}</p>
+              </div>
+              <div>
+                <p className="font-medium text-gray-600">Thời gian:</p>
+                <p className="text-blue-700">{new Date(appointments[0].recordDate).toLocaleString('vi-VN')}</p>
+              </div>
+              {appointments[0].location && (
+                <div>
+                  <p className="font-medium text-gray-600">Địa điểm:</p>
+                  <p className="text-green-700">{appointments[0].location}</p>
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+              )}
+              {appointments[0].notes && (
+                <div>
+                  <p className="font-medium text-gray-600">Ghi chú:</p>
+                  <p className="bg-gray-100 p-2 rounded-md text-gray-700 border-l-4 border-blue-400">{appointments[0].notes}</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+          {/* Placeholder for another section (half width) */}
+          <div className="col-span-1"></div>
+        </div>
       )}
 
-      {/* Quick Actions */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Thao tác nhanh cho {currentBaby.name}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Button className="h-20 flex flex-col gap-2" onClick={() => setShowAddActivity(true)}>
-              <Camera className="h-6 w-6" />
-              Thêm ảnh
-            </Button>
-            <Button variant="outline" className="h-20 flex flex-col gap-2" onClick={() => setShowAddActivity(true)}>
-              <BookOpen className="h-6 w-6" />
-              Ghi nhật ký
-            </Button>
-            <Button variant="outline" className="h-20 flex flex-col gap-2" onClick={() => setShowQuickUpdate(true)}>
-              <Weight className="h-6 w-6" />
-              Cập nhật cân nặng
-            </Button>
-            <Button variant="outline" className="h-20 flex flex-col gap-2">
-              <Users className="h-6 w-6" />
-              Chia sẻ
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
 
-      {/* Modals */}
-      <QuickUpdateModal
-        isOpen={showQuickUpdate}
-        onClose={() => setShowQuickUpdate(false)}
-        babyName={currentBaby.name}
-        currentWeight={currentBaby.weight}
-        currentHeight={currentBaby.height}
-        onUpdate={handleQuickUpdate}
-      />
 
-      <AddActivityModal
-        isOpen={showAddActivity || editingActivity !== null}
-        onClose={() => {
-          setShowAddActivity(false)
-          setEditingActivity(null)
-        }}
-        onSave={editingActivity ? handleUpdateActivity : handleAddActivity}
-        editingActivity={editingActivity}
-        babyName={currentBaby.name}
-      />
+      
 
       <AddEventModal
         isOpen={editingEvent !== null}
         onClose={() => setEditingEvent(null)}
-        onSave={editingEvent?.id ? handleUpdateEvent : handleAddEvent}
+        onSave={editingEvent && editingEvent._id ? handleUpdateEvent : handleAddEvent}
         editingEvent={editingEvent}
       />
 
-      {/* Thêm AlertDialog vào cuối component trước closing div */}
+      <QuickUpdateModal
+        isOpen={showQuickUpdate}
+        onClose={() => setShowQuickUpdate(false)}
+        onUpdate={async (data) => {
+          try {
+            await babiesAPI.update(baby._id, data);
+            toast({
+              title: "Thành công",
+              description: "Đã cập nhật thông tin của bé",
+            });
+            // Reload page to refresh data
+            window.location.reload();
+          } catch (error) {
+            toast({
+              title: "Lỗi",
+              description: "Không thể cập nhật thông tin. Vui lòng thử lại sau.",
+              variant: "destructive",
+            });
+          }
+        }}
+        baby={baby}
+      />
+
       <AlertDialog
         open={deleteDialog.isOpen}
         onOpenChange={(open) => setDeleteDialog({ ...deleteDialog, isOpen: open })}
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Xác nhận xóa</AlertDialogTitle>
+            <AlertDialogTitle>Bạn có chắc chắn muốn xóa?</AlertDialogTitle>
             <AlertDialogDescription>
-              Bạn có chắc chắn muốn xóa {deleteDialog.type === "activity" ? "hoạt động" : "sự kiện"} này không?
-              <br />
-              <strong>"{deleteDialog.title}"</strong>
-              <br />
-              Hành động này không thể hoàn tác.
+              Hành động này không thể hoàn tác. Sự kiện này sẽ bị xóa vĩnh viễn khỏi hệ thống.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Hủy</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={deleteDialog.type === "activity" ? confirmDeleteActivity : confirmDeleteEvent}
-              className="bg-red-600 hover:bg-red-700"
-            >
+            <AlertDialogAction onClick={confirmDeleteEvent} className="bg-red-600 hover:bg-red-700 text-white">
               Xóa
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -727,36 +729,41 @@ function AddEventModal({
 }) {
   const [formData, setFormData] = useState({
     title: "",
-    date: "",
-    type: "activity",
-    priority: "normal",
-    description: "",
+    startAt: "",
+    endAt: "",
+    eventType: "other",
+    notes: "",
   })
 
   useEffect(() => {
     if (editingEvent) {
       setFormData({
         title: editingEvent.title || "",
-        date: editingEvent.date || "",
-        type: editingEvent.type || "activity",
-        priority: editingEvent.priority || "normal",
-        description: editingEvent.description || "",
+        startAt: editingEvent.startAt ? editingEvent.startAt.slice(0, 10) : "",
+        endAt: editingEvent.endAt ? editingEvent.endAt.slice(0, 10) : "",
+        eventType: editingEvent.eventType || "other",
+        notes: editingEvent.notes || "",
       })
     } else {
       setFormData({
         title: "",
-        date: "",
-        type: "activity",
-        priority: "normal",
-        description: "",
+        startAt: "",
+        endAt: "",
+        eventType: "other",
+        notes: "",
       })
     }
   }, [editingEvent])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (editingEvent?.id) {
-      onSave({ ...editingEvent, ...formData })
+    if (editingEvent && editingEvent._id) {
+      // When updating, preserve the childId and _id
+      onSave({
+        ...editingEvent,
+        ...formData,
+        childId: editingEvent.childId // Ensure childId is preserved
+      })
     } else {
       onSave(formData)
     }
@@ -769,7 +776,7 @@ function AddEventModal({
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg max-w-md w-full">
         <div className="p-6">
-          <h2 className="text-xl font-bold mb-4">{editingEvent?.id ? "Chỉnh sửa sự kiện" : "Thêm sự kiện mới"}</h2>
+          <h2 className="text-xl font-bold mb-4">{editingEvent && editingEvent._id ? "Chỉnh sửa sự kiện" : "Thêm sự kiện mới"}</h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-sm font-medium mb-2">Tiêu đề *</label>
@@ -783,30 +790,49 @@ function AddEventModal({
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2">Ngày *</label>
+              <label className="block text-sm font-medium mb-2">Ngày bắt đầu *</label>
               <input
                 type="date"
                 required
                 className="w-full p-2 border rounded-md"
-                value={formData.date}
-                onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                value={formData.startAt}
+                onChange={(e) => setFormData({ ...formData, startAt: e.target.value })}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Ngày kết thúc</label>
+              <input
+                type="date"
+                className="w-full p-2 border rounded-md"
+                value={formData.endAt}
+                onChange={(e) => setFormData({ ...formData, endAt: e.target.value })}
               />
             </div>
             <div>
               <label className="block text-sm font-medium mb-2">Loại sự kiện</label>
               <select
                 className="w-full p-2 border rounded-md"
-                value={formData.type}
-                onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                value={formData.eventType}
+                onChange={(e) => setFormData({ ...formData, eventType: e.target.value as Event["eventType"] })}
               >
-                <option value="activity">Hoạt động</option>
-                <option value="health">Sức khỏe</option>
-                <option value="milestone">Cột mốc</option>
+                <option value="other">Khác</option>
+                <option value="sport">Thể thao</option>
+                <option value="school">Học tập</option>
+                <option value="extraClass">Lớp thêm</option>
               </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Ghi chú</label>
+              <textarea
+                className="w-full p-2 border rounded-md"
+                value={formData.notes}
+                onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                placeholder="Ghi chú thêm (nếu có)"
+              />
             </div>
             <div className="flex gap-4">
               <Button type="submit" className="flex-1">
-                {editingEvent?.id ? "Cập nhật" : "Thêm"}
+                {editingEvent && editingEvent._id ? "Cập nhật" : "Thêm"}
               </Button>
               <Button type="button" variant="outline" onClick={onClose}>
                 Hủy

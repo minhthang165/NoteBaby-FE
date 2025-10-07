@@ -1,688 +1,511 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { useState } from 'react';
-import {
-  Heart,
-  Plus,
-  Calendar,
-  Weight,
-  Ruler,
-  Stethoscope,
-  Pill,
-  AlertTriangle,
-  CheckCircle,
-  Clock,
-  User,
-  X,
-} from "lucide-react"
+"use client"
 
-const AddHealthRecordModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
-  const [formData, setFormData] = useState({
-    type: "",
-    date: "",
-    time: "",
-    doctor: "",
-    hospital: "",
-    weight: "",
-    height: "",
-    temperature: "",
-    symptoms: "",
-    diagnosis: "",
-    treatment: "",
-    vaccine: "",
-    notes: "",
-    nextAppointment: "",
-  })
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    // Xử lý lưu dữ liệu
-    console.log("Health record data:", formData)
-    alert("Hồ sơ khám đã được lưu thành công!")
-    onClose()
-  }
-
-  const resetForm = () => {
-    setFormData({
-      type: "",
-      date: "",
-      time: "",
-      doctor: "",
-      hospital: "",
-      weight: "",
-      height: "",
-      temperature: "",
-      symptoms: "",
-      diagnosis: "",
-      treatment: "",
-      vaccine: "",
-      notes: "",
-      nextAppointment: "",
-    })
-  }
-
-  const handleClose = () => {
-    resetForm()
-    onClose()
-  }
-
-  if (!isOpen) return null
-
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="sticky top-0 bg-white border-b px-6 py-4 flex items-center justify-between">
-          <h2 className="text-xl font-bold">Thêm hồ sơ khám mới</h2>
-          <Button variant="ghost" size="sm" onClick={handleClose}>
-            <X className="h-4 w-4" />
-          </Button>
-        </div>
-
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          {/* Thông tin cơ bản */}
-          <div>
-            <h3 className="text-lg font-semibold mb-4">Thông tin cơ bản</h3>
-            <div className="grid md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Loại khám *</label>
-                <select
-                  required
-                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  value={formData.type}
-                  onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                >
-                  <option value="">Chọn loại khám</option>
-                  <option value="checkup">Khám định kỳ</option>
-                  <option value="vaccine">Tiêm vaccine</option>
-                  <option value="sick">Khám bệnh</option>
-                  <option value="emergency">Cấp cứu</option>
-                  <option value="specialist">Khám chuyên khoa</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Ngày khám *</label>
-                <Input
-                  type="date"
-                  required
-                  value={formData.date}
-                  onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                />
-              </div>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-4 mt-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Giờ khám</label>
-                <Input
-                  type="time"
-                  value={formData.time}
-                  onChange={(e) => setFormData({ ...formData, time: e.target.value })}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Bác sĩ</label>
-                <Input
-                  placeholder="Tên bác sĩ"
-                  value={formData.doctor}
-                  onChange={(e) => setFormData({ ...formData, doctor: e.target.value })}
-                />
-              </div>
-            </div>
-
-            <div className="mt-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Bệnh viện/Phòng khám</label>
-              <Input
-                placeholder="Tên bệnh viện hoặc phòng khám"
-                value={formData.hospital}
-                onChange={(e) => setFormData({ ...formData, hospital: e.target.value })}
-              />
-            </div>
-          </div>
-
-          {/* Chỉ số sức khỏe */}
-          <div>
-            <h3 className="text-lg font-semibold mb-4">Chỉ số sức khỏe</h3>
-            <div className="grid md:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Cân nặng (kg)</label>
-                <Input
-                  type="number"
-                  step="0.1"
-                  placeholder="8.2"
-                  value={formData.weight}
-                  onChange={(e) => setFormData({ ...formData, weight: e.target.value })}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Chiều cao (cm)</label>
-                <Input
-                  type="number"
-                  step="0.1"
-                  placeholder="69"
-                  value={formData.height}
-                  onChange={(e) => setFormData({ ...formData, height: e.target.value })}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Nhiệt độ (°C)</label>
-                <Input
-                  type="number"
-                  step="0.1"
-                  placeholder="36.5"
-                  value={formData.temperature}
-                  onChange={(e) => setFormData({ ...formData, temperature: e.target.value })}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Thông tin khám bệnh */}
-          {(formData.type === "sick" || formData.type === "emergency") && (
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Thông tin khám bệnh</h3>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Triệu chứng</label>
-                  <Textarea
-                    placeholder="Mô tả các triệu chứng của bé..."
-                    rows={3}
-                    value={formData.symptoms}
-                    onChange={(e) => setFormData({ ...formData, symptoms: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Chẩn đoán</label>
-                  <Input
-                    placeholder="Chẩn đoán của bác sĩ"
-                    value={formData.diagnosis}
-                    onChange={(e) => setFormData({ ...formData, diagnosis: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Điều trị</label>
-                  <Textarea
-                    placeholder="Phương pháp điều trị, thuốc men..."
-                    rows={3}
-                    value={formData.treatment}
-                    onChange={(e) => setFormData({ ...formData, treatment: e.target.value })}
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Thông tin vaccine */}
-          {formData.type === "vaccine" && (
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Thông tin tiêm chủng</h3>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Loại vaccine</label>
-                <select
-                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  value={formData.vaccine}
-                  onChange={(e) => setFormData({ ...formData, vaccine: e.target.value })}
-                >
-                  <option value="">Chọn loại vaccine</option>
-                  <option value="bcg">BCG</option>
-                  <option value="hepatitis-b">Viêm gan B</option>
-                  <option value="5-in-1">Vaccine 5 trong 1</option>
-                  <option value="pneumococcal">Phế cầu khuẩn</option>
-                  <option value="rotavirus">Rotavirus</option>
-                  <option value="measles-rubella">Sởi - Rubella</option>
-                  <option value="hepatitis-a">Viêm gan A</option>
-                  <option value="varicella">Thủy đậu</option>
-                  <option value="other">Khác</option>
-                </select>
-              </div>
-            </div>
-          )}
-
-          {/* Ghi chú */}
-          <div>
-            <h3 className="text-lg font-semibold mb-4">Ghi chú và theo dõi</h3>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Ghi chú của bác sĩ</label>
-                <Textarea
-                  placeholder="Lời khuyên, chú ý đặc biệt từ bác sĩ..."
-                  rows={4}
-                  value={formData.notes}
-                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Lịch hẹn tiếp theo</label>
-                <Input
-                  type="date"
-                  value={formData.nextAppointment}
-                  onChange={(e) => setFormData({ ...formData, nextAppointment: e.target.value })}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Buttons */}
-          <div className="flex gap-4 pt-4 border-t">
-            <Button type="submit" className="flex-1">
-              <Plus className="h-4 w-4 mr-2" />
-              Lưu hồ sơ khám
-            </Button>
-            <Button type="button" variant="outline" onClick={handleClose}>
-              Hủy
-            </Button>
-          </div>
-        </form>
-      </div>
-    </div>
-  )
+export enum RecordType {
+  ILLNESS = 'illness',
+  VACCINATION = 'vaccination',
 }
 
-// Trong component HealthSection, thêm state để quản lý modal
-export function HealthSection() {
-  const [showAddModal, setShowAddModal] = useState(false)
+import { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/hooks/use-toast";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { healthStatusAPI } from '@/lib/api/healthStatusAPI';
+import { medicalRecordsAPI } from '@/lib/api/medicalRecordAPI';
+import {
+  Calendar, Weight, Ruler
+} from "lucide-react";
 
-  const healthRecords = [
-    {
-      id: 1,
-      date: "15/12/2024",
-      type: "Khám định kỳ",
-      doctor: "BS. Nguyễn Thị Lan",
-      hospital: "Bệnh viện Nhi Trung ương",
-      weight: 8.2,
-      height: 69,
-      notes: "Bé phát triển bình thường, cần tiêm vaccine tiếp theo vào tháng sau",
-      status: "normal",
-    },
-    {
-      id: 2,
-      date: "20/11/2024",
-      type: "Tiêm vaccine",
-      doctor: "BS. Trần Văn Nam",
-      hospital: "Trung tâm Y tế Quận 1",
-      vaccine: "Vaccine 5 trong 1 (mũi 3)",
-      notes: "Tiêm vaccine thành công, bé có phản ứng nhẹ sau tiêm",
-      status: "completed",
-    },
-    {
-      id: 3,
-      date: "05/11/2024",
-      type: "Khám bệnh",
-      doctor: "BS. Lê Thị Hoa",
-      hospital: "Phòng khám Nhi khoa ABC",
-      symptoms: "Sốt nhẹ, ho",
-      diagnosis: "Viêm đường hô hấp trên",
-      treatment: "Thuốc hạ sốt, thuốc ho",
-      status: "recovered",
-    },
-  ]
+// --- Định nghĩa các kiểu dữ liệu ---
+interface HealthStatus {
+  _id: string;
+  height: number;
+  weight: number;
+  checkedAt: string;
+  created_at: string;
+}
 
-  const vaccineSchedule = [
-    { vaccine: "BCG", age: "Sơ sinh", status: "completed", date: "15/04/2024" },
-    { vaccine: "Viêm gan B (mũi 1)", age: "Sơ sinh", status: "completed", date: "15/04/2024" },
-    { vaccine: "5 trong 1 (mũi 1)", age: "2 tháng", status: "completed", date: "15/06/2024" },
-    { vaccine: "5 trong 1 (mũi 2)", age: "3 tháng", status: "completed", date: "15/07/2024" },
-    { vaccine: "5 trong 1 (mũi 3)", age: "4 tháng", status: "completed", date: "20/11/2024" },
-    { vaccine: "Sởi - Rubella", age: "9 tháng", status: "upcoming", date: "15/01/2025" },
-    { vaccine: "Viêm gan A", age: "12 tháng", status: "upcoming", date: "15/04/2025" },
-  ]
+interface MedicalRecord {
+  _id: string;
+  recordType: 'vaccination' | 'illness';
+  name: string;
+  recordDate: string;
+  location?: string;
+  notes?: string;
+}
 
-  const growthChart = [
-    { age: "Sơ sinh", weight: 3.2, height: 50 },
-    { age: "1 tháng", weight: 4.1, height: 54 },
-    { age: "2 tháng", weight: 5.2, height: 58 },
-    { age: "3 tháng", weight: 6.0, height: 61 },
-    { age: "4 tháng", weight: 6.8, height: 63 },
-    { age: "5 tháng", weight: 7.2, height: 65 },
-    { age: "6 tháng", weight: 7.6, height: 67 },
-    { age: "7 tháng", weight: 7.9, height: 68 },
-    { age: "8 tháng", weight: 8.2, height: 69 },
-  ]
+function HealthStatusForm({ babyId, onSuccess }: Readonly<{ babyId: string, onSuccess: () => void }>) {
+  const { toast } = useToast();
+  const [formData, setFormData] = useState({
+    weight: '',
+    height: '',
+    checkedAt: '',
+    description: '',
+  });
+  const [loading, setLoading] = useState(false);
 
-  const upcomingAppointments = [
-    {
-      date: "25/12/2024",
-      time: "09:00",
-      type: "Khám định kỳ",
-      doctor: "BS. Nguyễn Thị Lan",
-      hospital: "Bệnh viện Nhi Trung ương",
-    },
-    {
-      date: "15/01/2025",
-      time: "14:30",
-      type: "Tiêm vaccine",
-      doctor: "BS. Trần Văn Nam",
-      hospital: "Trung tâm Y tế Quận 1",
-    },
-  ]
+  const checkedAtOptions = [
+    { value: 'tại nhà', label: 'Tại nhà' },
+    { value: 'bệnh viện', label: 'Bệnh viện' },
+    { value: 'phòng khám', label: 'Phòng khám' },
+    { value: 'khác', label: 'Khác' },
+  ];
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.weight || !formData.height || !formData.checkedAt) {
+      toast({
+        title: "Lỗi",
+        description: "Vui lòng nhập đầy đủ thông tin bắt buộc",
+        variant: "destructive",
+      });
+      return;
+    }
+    setLoading(true);
+
+    const dataToSubmit = new FormData();
+    dataToSubmit.append('childId', babyId);
+    dataToSubmit.append('weight', formData.weight);
+    dataToSubmit.append('height', formData.height);
+    dataToSubmit.append('checkedAt', formData.checkedAt);
+    if (formData.description) {
+      dataToSubmit.append('description', formData.description);
+    }
+
+    try {
+      const res = await healthStatusAPI.create(dataToSubmit);
+      setFormData({ weight: '', height: '', checkedAt: '', description: '' });
+      // Log activity to recent activities
+      if (res && res.data) {
+        if (typeof window !== 'undefined' && (window as any).addActivityFromHealthStatus) {
+          (window as any).addActivityFromHealthStatus(res.data);
+        }
+      }
+      if (onSuccess) onSuccess();
+      toast({
+        title: "Thành công",
+        description: "Đã thêm chỉ số mới",
+        variant: "default",
+      });
+    } catch (err) {
+      toast({
+        title: "Thất bại",
+        description: "Không thể thêm chỉ số. Vui lòng thử lại",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div>
+        <label htmlFor="weight" className="text-sm font-medium">Cân nặng (kg) *</label>
+        <Input
+          id="weight"
+          type="number"
+          step="0.1"
+          required
+          placeholder="Nhập cân nặng"
+          value={formData.weight}
+          onChange={e => setFormData({ ...formData, weight: e.target.value })}
+        />
+      </div>
+      <div>
+        <label htmlFor="height" className="text-sm font-medium">Chiều cao (cm) *</label>
+        <Input
+          id="height"
+          type="number"
+          step="0.1"
+          required
+          placeholder="Nhập chiều cao"
+          value={formData.height}
+          onChange={e => setFormData({ ...formData, height: e.target.value })}
+        />
+      </div>
+      <div>
+        <label htmlFor="checkedAt" className="text-sm font-medium">Nơi kiểm tra *</label>
+        <select
+          id="checkedAt"
+          className="w-full p-2 border rounded-md mt-1"
+          required
+          value={formData.checkedAt}
+          onChange={e => setFormData({ ...formData, checkedAt: e.target.value })}
+        >
+          <option value="">Chọn nơi kiểm tra</option>
+          {checkedAtOptions.map(opt => (
+            <option key={opt.value} value={opt.value}>{opt.label}</option>
+          ))}
+        </select>
+      </div>
+      <div>
+        <label htmlFor="description" className="text-sm font-medium">Ghi chú</label>
+        <Input
+          id="description"
+          type="text"
+          placeholder="Nhập ghi chú (nếu có)"
+          value={formData.description}
+          onChange={e => setFormData({ ...formData, description: e.target.value })}
+        />
+      </div>
+      <Button type="submit" className="w-full" disabled={loading}>
+        {loading ? 'Đang lưu...' : 'Thêm chỉ số'}
+      </Button>
+    </form>
+  );
+}
+
+function AppointmentForm({ babyId, onSuccess }: Readonly<{ babyId: string, onSuccess: () => void }>) {
+  const { toast } = useToast();
+  const [formData, setFormData] = useState({
+    recordType: RecordType.VACCINATION,
+    name: '',
+    recordDate: '',
+    location: '',
+    notes: '',
+  });
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const res = await medicalRecordsAPI.create({
+        childId: babyId,
+        ...formData,
+      });
+      setFormData({ recordType: formData.recordType, name: '', recordDate: '', location: '', notes: '' });
+      // Log activity to recent activities
+      if (res && res.data) {
+        if (typeof window !== 'undefined' && (window as any).addActivityFromMedicalRecord) {
+          (window as any).addActivityFromMedicalRecord(res.data);
+        }
+      }
+      if (onSuccess) onSuccess();
+      toast({
+        title: "Thành công",
+        description: "Thêm lịch hẹn thành công!",
+        variant: "default",
+      });
+    } catch (err) {
+      toast({
+        title: "Thất bại",
+        description: "Thêm lịch hẹn thất bại!",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div>
+        <label htmlFor="name" className="text-sm font-medium">Tên lịch hẹn *</label>
+        <Input id="name" required placeholder="Tiêm vắc-xin 6 trong 1" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} />
+      </div>
+      <div>
+        <label htmlFor="recordDate" className="text-sm font-medium">Ngày giờ *</label>
+        <Input id="recordDate" type="datetime-local" required value={formData.recordDate} onChange={e => setFormData({ ...formData, recordDate: e.target.value })} />
+      </div>
+      <div>
+        <label htmlFor="location" className="text-sm font-medium">Địa điểm</label>
+        <Input id="location" placeholder="Bệnh viện Vinmec Đà Nẵng" value={formData.location} onChange={e => setFormData({ ...formData, location: e.target.value })} />
+      </div>
+      <div>
+        <label htmlFor="notes" className="text-sm font-medium">Ghi chú</label>
+        <Textarea id="notes" placeholder="Bé không bị sốt sau khi tiêm." value={formData.notes} onChange={e => setFormData({ ...formData, notes: e.target.value })} />
+      </div>
+      <div>
+        <label htmlFor="recordType" className="text-sm font-medium">Loại lịch hẹn *</label>
+        <select
+          id="recordType"
+          className="w-full p-2 border rounded-md mt-1"
+          value={formData.recordType}
+          onChange={e => setFormData({ ...formData, recordType: e.target.value as RecordType })}
+          required
+        >
+          <option value={RecordType.VACCINATION}>Tiêm chủng</option>
+          <option value={RecordType.ILLNESS}>Khám bệnh</option>
+        </select>
+      </div>
+      <div className="flex gap-4 pt-2">
+        <Button type="submit" className="flex-1" disabled={loading}>{loading ? 'Đang lưu...' : 'Thêm lịch hẹn'}</Button>
+      </div>
+    </form>
+  );
+}
+
+
+export function HealthSection({ babyId }: Readonly<{ babyId: string }>) {
+  // Pagination for medical records
+  const [medicalRecords, setMedicalRecords] = useState<MedicalRecord[]>([]);
+  const [recordPage, setRecordPage] = useState(1);
+  const recordPageSize = 6;
+  const recordTotalPages = Math.ceil(medicalRecords.length / recordPageSize);
+  const paginatedMedicalRecords = medicalRecords.slice((recordPage - 1) * recordPageSize, recordPage * recordPageSize);
+  // Pagination state for growth history
+  const [page, setPage] = useState(1);
+  const [healthStatusList, setHealthStatusList] = useState<HealthStatus[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  // Phân trang cho lịch sử tăng trưởng (sau khi healthStatusList đã được khai báo)
+  const pageSize = 5;
+  const totalPages = Math.ceil(healthStatusList.length / pageSize);
+  const paginatedHealthStatus = healthStatusList.slice((page - 1) * pageSize, page * pageSize);
+
+  const fetchData = async () => {
+    setIsLoading(true);
+    try {
+      const [healthRes, medicalRes] = await Promise.all([
+        healthStatusAPI.getAll({ childId: babyId, sortOrder: 'desc', sortBy: 'created_at' }),
+        medicalRecordsAPI.getAll({ childId: babyId, sortOrder: 'desc', sortBy: 'recordDate' })
+      ]);
+      console.log('HealthStatusList:', healthRes?.data);
+      console.log('MedicalRecords:', medicalRes?.data);
+      setHealthStatusList(healthRes?.data || []);
+      setMedicalRecords(medicalRes?.data || []);
+    } catch (err) {
+      console.error('Fetch error:', err);
+      setHealthStatusList([]);
+      setMedicalRecords([]);
+    } finally { 
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (babyId) {
+      fetchData();
+    }
+  }, [babyId]);
+
+  const latestStatus = healthStatusList.length > 0 ? healthStatusList[0] : null;
+  const latestAppointment = medicalRecords.length > 0 ? medicalRecords[0] : null;
+
+  if (isLoading) {
+      return <div>Đang tải dữ liệu sức khỏe...</div>;
+  }
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Theo dõi sức khỏe</h1>
-          <p className="text-gray-600 mt-2">Quản lý thông tin sức khỏe và lịch khám của bé</p>
-        </div>
-        <Button className="flex items-center gap-2" onClick={() => setShowAddModal(true)}>
-          <Plus className="h-4 w-4" />
-          Thêm hồ sơ khám
-        </Button>
+        <h1 className="text-3xl font-bold">Theo dõi sức khỏe</h1>
+        {/* <Button><Plus className="h-4 w-4 mr-2" />Thêm hồ sơ</Button> */}
       </div>
 
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="overview">Tổng quan</TabsTrigger>
           <TabsTrigger value="records">Hồ sơ khám</TabsTrigger>
-          <TabsTrigger value="vaccines">Tiêm chủng</TabsTrigger>
           <TabsTrigger value="growth">Tăng trưởng</TabsTrigger>
           <TabsTrigger value="appointments">Lịch hẹn</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
-          {/* Health Status Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">Cân nặng hiện tại</p>
-                    <p className="text-2xl font-bold text-gray-900">8.2 kg</p>
-                    <p className="text-xs text-green-600">Bình thường</p>
-                  </div>
-                  <Weight className="h-8 w-8 text-blue-600" />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">Chiều cao hiện tại</p>
-                    <p className="text-2xl font-bold text-gray-900">69 cm</p>
-                    <p className="text-xs text-green-600">Bình thường</p>
-                  </div>
-                  <Ruler className="h-8 w-8 text-green-600" />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">Lần khám gần nhất</p>
-                    <p className="text-2xl font-bold text-gray-900">15/12</p>
-                    <p className="text-xs text-blue-600">9 ngày trước</p>
-                  </div>
-                  <Stethoscope className="h-8 w-8 text-purple-600" />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">Vaccine tiếp theo</p>
-                    <p className="text-2xl font-bold text-gray-900">15/01</p>
-                    <p className="text-xs text-orange-600">Sởi - Rubella</p>
-                  </div>
-                  <Pill className="h-8 w-8 text-red-600" />
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Upcoming Appointments */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calendar className="h-5 w-5" />
-                Lịch hẹn sắp tới
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {upcomingAppointments.map((appointment, index) => (
-                  <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="flex items-center gap-4">
-                      <div className="text-center">
-                        <p className="text-sm font-medium">{appointment.date}</p>
-                        <p className="text-xs text-gray-600">{appointment.time}</p>
-                      </div>
-                      <div>
-                        <p className="font-medium">{appointment.type}</p>
-                        <p className="text-sm text-gray-600">{appointment.doctor}</p>
-                        <p className="text-xs text-gray-500">{appointment.hospital}</p>
-                      </div>
-                    </div>
-                    <Button variant="outline" size="sm">
-                      Chi tiết
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Health Alerts */}
-          <Alert>
-            <AlertTriangle className="h-4 w-4" />
-            <AlertDescription>
-              <strong>Nhắc nhở:</strong> Bé cần tiêm vaccine Sởi - Rubella vào ngày 15/01/2025. Hãy đặt lịch hẹn với bác
-              sĩ.
-            </AlertDescription>
-          </Alert>
-        </TabsContent>
-
-        <TabsContent value="records" className="space-y-6">
-          <div className="space-y-4">
-            {healthRecords.map((record) => (
-              <Card key={record.id}>
-                <CardHeader>
-                  <div className="flex items-start justify-between">
+          {latestStatus ? (
+            <Card className="shadow-md border rounded-xl">
+              <CardHeader className="bg-gradient-to-r from-blue-50 to-green-50 rounded-t-xl">
+                <CardTitle className="text-lg font-bold text-blue-700">Tổng quan sức khỏe gần nhất</CardTitle>
+                <p className="text-sm text-gray-500 mt-1">
+                  Cập nhật vào: {new Date(latestStatus.created_at).toLocaleString('vi-VN')}
+                </p>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                  {/* Cân nặng */}
+                  <div className="flex items-center gap-4 p-4 bg-blue-100 rounded-lg shadow-sm">
+                    <Weight className="h-8 w-8 text-blue-600" />
                     <div>
-                      <CardTitle className="flex items-center gap-2">
-                        {record.type}
-                        <Badge
-                          variant={
-                            record.status === "normal"
-                              ? "default"
-                              : record.status === "completed"
-                                ? "secondary"
-                                : "outline"
-                          }
-                        >
-                          {record.status === "normal"
-                            ? "Bình thường"
-                            : record.status === "completed"
-                              ? "Hoàn thành"
-                              : "Đã khỏi"}
-                        </Badge>
-                      </CardTitle>
-                      <div className="flex items-center gap-4 text-sm text-gray-600 mt-2">
-                        <span className="flex items-center gap-1">
-                          <Calendar className="h-4 w-4" />
-                          {record.date}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <User className="h-4 w-4" />
-                          {record.doctor}
-                        </span>
-                      </div>
-                      <p className="text-sm text-gray-600 mt-1">{record.hospital}</p>
+                      <p className="text-sm font-medium text-gray-600">Cân nặng</p>
+                      <p className="text-2xl font-bold text-blue-800">{latestStatus.weight} kg</p>
                     </div>
                   </div>
-                </CardHeader>
-                <CardContent>
-                  {record.weight && record.height && (
-                    <div className="grid grid-cols-2 gap-4 mb-4">
-                      <div className="flex items-center gap-2">
-                        <Weight className="h-4 w-4 text-blue-600" />
-                        <span className="text-sm">Cân nặng: {record.weight} kg</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Ruler className="h-4 w-4 text-green-600" />
-                        <span className="text-sm">Chiều cao: {record.height} cm</span>
-                      </div>
+                  {/* Chiều cao */}
+                  <div className="flex items-center gap-4 p-4 bg-green-100 rounded-lg shadow-sm">
+                    <Ruler className="h-8 w-8 text-green-600" />
+                    <div>
+                      <p className="text-sm font-medium text-gray-600">Chiều cao</p>
+                      <p className="text-2xl font-bold text-green-800">{latestStatus.height} cm</p>
                     </div>
-                  )}
-                  {record.vaccine && (
-                    <div className="mb-4">
-                      <p className="text-sm font-medium">Vaccine: {record.vaccine}</p>
-                    </div>
-                  )}
-                  {record.symptoms && (
-                    <div className="mb-4">
-                      <p className="text-sm font-medium">Triệu chứng: {record.symptoms}</p>
-                      <p className="text-sm">Chẩn đoán: {record.diagnosis}</p>
-                      <p className="text-sm">Điều trị: {record.treatment}</p>
-                    </div>
-                  )}
-                  <p className="text-sm text-gray-700">{record.notes}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                  </div>
+                </div>
+                {/* Ghi chú / Mô tả */}
+                {/* Không có trường ghi chú/mô tả trong dữ liệu trả về từ API */}
+              </CardContent>
+            </Card>
+          ) : (
+            <p className="text-center text-gray-500">Chưa có dữ liệu tổng quan.</p>
+          )}
+
+          {/* Hiển thị lịch hẹn gần nhất */}
+          {latestAppointment && (
+            <Card className="shadow-md border rounded-xl mt-6">
+              <CardHeader className="bg-gradient-to-r from-blue-50 to-green-50 rounded-t-xl">
+                <CardTitle className="text-lg font-bold text-blue-700">Lịch hẹn sắp tới</CardTitle>
+                <div className="flex items-center gap-2 mt-2">
+                  {latestAppointment.recordType === 'vaccination' ? 
+                    <Calendar className="h-5 w-5 text-blue-500" /> : 
+                    <Ruler className="h-5 w-5 text-green-500" />
+                  }
+                  <p className="text-sm text-gray-500">
+                    {latestAppointment.recordType === 'vaccination' ? 'Tiêm chủng' : 'Khám bệnh'}
+                  </p>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div>
+                  <p className="font-medium text-gray-600">Tên lịch hẹn:</p>
+                  <p className="text-blue-700 font-semibold">{latestAppointment.name}</p>
+                </div>
+                <div>
+                  <p className="font-medium text-gray-600">Thời gian:</p>
+                  <p className="text-blue-700">{new Date(latestAppointment.recordDate).toLocaleString('vi-VN')}</p>
+                </div>
+                {latestAppointment.location && (
+                  <div>
+                    <p className="font-medium text-gray-600">Địa điểm:</p>
+                    <p className="text-green-700">{latestAppointment.location}</p>
+                  </div>
+                )}
+                {latestAppointment.notes && (
+                  <div>
+                    <p className="font-medium text-gray-600">Ghi chú:</p>
+                    <p className="bg-gray-100 p-2 rounded-md text-gray-700 border-l-4 border-blue-400">{latestAppointment.notes}</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
         </TabsContent>
 
-        <TabsContent value="vaccines" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Lịch tiêm chủng</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {vaccineSchedule.map((vaccine, index) => (
-                  <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="flex items-center gap-4">
-                      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-100">
-                        {vaccine.status === "completed" ? (
-                          <CheckCircle className="h-5 w-5 text-green-600" />
-                        ) : (
-                          <Clock className="h-5 w-5 text-orange-600" />
-                        )}
+        {/* ======================================================================= */}
+        {/* TAB HỒ SƠ KHÁM (GIỮ NGUYÊN) */}
+        {/* ======================================================================= */}
+        <TabsContent value="records" className="space-y-6">
+          {medicalRecords.length > 0 ? (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {paginatedMedicalRecords.map(record => (
+                  <Card key={record._id} className="border shadow-md rounded-xl hover:shadow-lg transition-all">
+                    <CardHeader className="bg-gradient-to-r from-blue-50 to-green-50 rounded-t-xl">
+                      <CardTitle className="flex items-center gap-2 text-blue-700">
+                        {record.recordType === 'vaccination' ? <Calendar className="h-5 w-5 text-blue-500" /> : <Ruler className="h-5 w-5 text-green-500" />}
+                        {record.name}
+                      </CardTitle>
+                      <p className="text-sm text-gray-500 mt-1">
+                        {record.recordType === 'vaccination' ? 'Tiêm chủng' : 'Khám bệnh'}
+                      </p>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="mb-2 flex items-center gap-2">
+                        <span className="text-gray-600 font-medium">Ngày:</span>
+                        <span className="text-blue-700 font-semibold">{new Date(record.recordDate).toLocaleString('vi-VN')}</span>
                       </div>
-                      <div>
-                        <p className="font-medium">{vaccine.vaccine}</p>
-                        <p className="text-sm text-gray-600">Tuổi: {vaccine.age}</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm font-medium">{vaccine.date}</p>
-                      <Badge variant={vaccine.status === "completed" ? "default" : "secondary"}>
-                        {vaccine.status === "completed" ? "Đã tiêm" : "Sắp tới"}
-                      </Badge>
-                    </div>
-                  </div>
+                      {record.location && (
+                        <div className="mb-2 flex items-center gap-2">
+                          <span className="text-gray-600 font-medium">Địa điểm:</span>
+                          <span className="text-green-700 font-semibold">{record.location}</span>
+                        </div>
+                      )}
+                      {record.notes && (
+                        <div className="mb-2">
+                          <span className="text-gray-600 font-medium">Ghi chú:</span>
+                          <p className="bg-gray-100 p-2 rounded-md mt-1 text-gray-700 border-l-4 border-blue-400">{record.notes}</p>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
                 ))}
               </div>
+              {/* Pagination controls for medical records */}
+              {recordTotalPages > 1 && (
+                <div className="flex justify-center items-center gap-2 mt-4">
+                  <Button variant="outline" size="sm" onClick={() => setRecordPage(recordPage - 1)} disabled={recordPage === 1}>
+                    Trước
+                  </Button>
+                  <span className="text-sm">Trang {recordPage} / {recordTotalPages}</span>
+                  <Button variant="outline" size="sm" onClick={() => setRecordPage(recordPage + 1)} disabled={recordPage === recordTotalPages}>
+                    Sau
+                  </Button>
+                </div>
+              )}
+            </>
+          ) : (
+            <p className="text-center text-gray-500">Chưa có hồ sơ khám bệnh/tiêm chủng nào.</p>
+          )}
+        </TabsContent>
+        
+        {/* ======================================================================= */}
+        {/* TAB TĂNG TRƯỞNG (ĐÃ SỬA LẠI) */}
+        {/* ======================================================================= */}
+        <TabsContent value="growth" className="space-y-6">
+          <Card>
+            <CardHeader><CardTitle>Thêm chỉ số mới</CardTitle></CardHeader>
+            <CardContent>
+              <HealthStatusForm babyId={babyId} onSuccess={fetchData} />
             </CardContent>
           </Card>
-        </TabsContent>
-
-        <TabsContent value="growth" className="space-y-6">
-          <div className="grid md:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Biểu đồ cân nặng</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {growthChart.slice(-6).map((data, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
-                      <span className="text-sm font-medium">{data.age}</span>
-                      <span className="text-lg font-bold text-blue-600">{data.weight} kg</span>
-                    </div>
-                  ))}
+          <Card className="shadow-md border rounded-xl">
+            <CardHeader className="bg-gradient-to-r from-blue-50 to-green-50 rounded-t-xl">
+              <CardTitle className="text-lg font-bold text-blue-700">Lịch sử tăng trưởng</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="overflow-x-auto">
+                <table className="min-w-full border rounded-lg">
+                  <thead>
+                    <tr className="bg-gray-100">
+                      <th className="py-2 px-4 border-b text-left">Ngày ghi nhận</th>
+                      <th className="py-2 px-4 border-b text-center">Cân nặng (kg)</th>
+                      <th className="py-2 px-4 border-b text-center">Chiều cao (cm)</th>
+                      <th className="py-2 px-4 border-b text-center">Nơi kiểm tra</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {paginatedHealthStatus.length > 0 ? (
+                      paginatedHealthStatus.map((status) => (
+                        <tr key={status._id} className="border-b hover:bg-gray-50">
+                          <td className="py-2 px-4 border-b">{new Date(status.created_at).toLocaleDateString('vi-VN')}</td>
+                          <td className="py-2 px-4 border-b text-center font-semibold text-blue-800">{status.weight}</td>
+                          <td className="py-2 px-4 border-b text-center font-semibold text-green-800">{status.height}</td>
+                          <td className="py-2 px-4 border-b text-center text-gray-600">{status.checkedAt}</td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={4} className="text-center text-gray-500">Chưa có dữ liệu tăng trưởng.</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+              {/* Pagination controls */}
+              {totalPages > 1 && (
+                <div className="flex justify-center items-center gap-2 mt-4">
+                  <Button variant="outline" size="sm" onClick={() => setPage(page - 1)} disabled={page === 1}>
+                    Trước
+                  </Button>
+                  <span className="text-sm">Trang {page} / {totalPages}</span>
+                  <Button variant="outline" size="sm" onClick={() => setPage(page + 1)} disabled={page === totalPages}>
+                    Sau
+                  </Button>
                 </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Biểu đồ chiều cao</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {growthChart.slice(-6).map((data, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
-                      <span className="text-sm font-medium">{data.age}</span>
-                      <span className="text-lg font-bold text-green-600">{data.height} cm</span>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          <Alert>
-            <Heart className="h-4 w-4" />
-            <AlertDescription>
-              Bé đang phát triển rất tốt! Cân nặng và chiều cao đều nằm trong khoảng bình thường theo biểu đồ tăng
-              trưởng WHO.
-            </AlertDescription>
-          </Alert>
+              )}
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="appointments" className="space-y-6">
           <Card>
-            <CardHeader>
-              <CardTitle>Đặt lịch hẹn mới</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Loại khám *</label>
-                  <select className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                    <option value="">Chọn loại khám</option>
-                    <option value="checkup">Khám định kỳ</option>
-                    <option value="vaccine">Tiêm chủng</option>
-                    <option value="sick">Khám bệnh</option>
-                    <option value="specialist">Khám chuyên khoa</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Ngày hẹn *</label>
-                  <Input type="date" />
-                </div>
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Giờ hẹn *</label>
-                  <Input type="time" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Bác sĩ</label>
-                  <Input placeholder="Tên bác sĩ" />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Bệnh viện/Phòng khám</label>
-                <Input placeholder="Tên bệnh viện hoặc phòng khám" />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Ghi chú</label>
-                <Textarea placeholder="Ghi chú thêm về cuộc hẹn..." rows={3} />
-              </div>
-
-              <div className="flex gap-4">
-                <Button className="flex-1">Đặt lịch hẹn</Button>
-                <Button variant="outline">Hủy</Button>
-              </div>
+            <CardHeader><CardTitle>Thêm lịch hẹn mới</CardTitle></CardHeader>
+            <CardContent>
+              <AppointmentForm babyId={babyId} onSuccess={fetchData} />
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
-      <AddHealthRecordModal isOpen={showAddModal} onClose={() => setShowAddModal(false)} />
     </div>
-  )
+  );
 }
