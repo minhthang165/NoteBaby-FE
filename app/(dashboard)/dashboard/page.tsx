@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { getDataFromJWT } from "@/lib/utils"
 import { SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
 import { Baby, Badge, Calendar, Camera, Home } from "lucide-react"
 import { OverviewSection } from "@/components/layout/dashboard/dashboard-sections/overview"
@@ -24,7 +25,15 @@ export default function DashboardPage() {
   useEffect(() => {
     async function fetchBabies() {
       try {
-        const res = await babiesAPI.getAll()
+        const currentUser = getDataFromJWT() as { id?: string; sub?: string } | null;
+        const userId = currentUser?.id || currentUser?.sub;
+        
+        if (!userId) {
+          window.location.href = '/sign-in';
+          return;
+        }
+
+        const res = await babiesAPI.getAll({ parentId: userId })
         setBabies(res.babies || [])
         // Nếu chưa chọn em bé, chọn em bé đầu tiên
         if (res.babies && res.babies.length > 0) {
@@ -32,6 +41,7 @@ export default function DashboardPage() {
           setSelectedBabyId(String(res.babies[0].id || res.babies[0]._id))
         }
       } catch (err) {
+        console.error('Error fetching babies:', err);
         setBabies([])
       } finally {
         setLoading(false)
@@ -67,7 +77,42 @@ export default function DashboardPage() {
   }
 
   if (loading) return <div>Đang tải dữ liệu...</div>
-  if (!currentBaby) return <div>Không tìm thấy dữ liệu bé.</div>
+  
+  // Nếu không có baby nào, hiển thị giao diện để thêm baby mới
+  if (!currentBaby) {
+    return (
+      <>
+        <DashboardSidebar
+          activeSection={activeSection}
+          onSectionChange={setActiveSection}
+          babies={babies}
+          selectedBabyId={selectedBabyId}
+          setSelectedBabyId={setSelectedBabyId}
+        />
+        <SidebarInset>
+          <header className="flex h-16 shrink-0 items-center gap-2 border-b bg-white px-4 shadow-sm">
+            <SidebarTrigger className="-ml-1" />
+            <div className="flex items-center gap-4 flex-1">
+              <h1 className="text-lg font-semibold">Chào mừng đến với NotBy!</h1>
+            </div>
+            <Link href="/" passHref>
+              <Button variant="outline" size="sm" className="hidden sm:flex">
+                <Home className="h-4 w-4 mr-1" />
+                <span className="hidden lg:inline">Trang chủ</span>
+              </Button>
+            </Link>
+          </header>
+          <main className="flex-1 space-y-4 p-4 md:p-8 pt-6 bg-gray-50">
+            <div className="text-center py-8">
+              <Baby className="h-12 w-12 mx-auto mb-4 text-blue-500" />
+              <h2 className="text-xl font-semibold mb-2">Bắt đầu theo dõi bé của bạn</h2>
+              <p className="text-gray-600 mb-4">Hãy thêm thông tin của bé để bắt đầu hành trình ghi lại những khoảnh khắc đáng nhớ</p>
+            </div>
+          </main>
+        </SidebarInset>
+      </>
+    )
+  }
 
   const fullName = `${currentBaby.lastName} ${currentBaby.firstName}`
 

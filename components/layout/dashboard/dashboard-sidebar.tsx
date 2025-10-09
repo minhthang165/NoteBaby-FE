@@ -129,10 +129,15 @@ export function DashboardSidebar(props: DashboardSidebarProps) {
   // Fetch babies from BE on mount or when babies prop changes
   useEffect(() => {
     if (!babies || babies.length === 0) {
-      babiesAPI.getAll().then(res => {
-        setBabiesList(res.babies);
-        if (res.babies.length > 0 && !selectedBabyId) setSelectedBabyId(res.babies[0]._id);
-      });
+      const currentUser = getDataFromJWT() as { id?: string; sub?: string } | null;
+      const userId = currentUser?.id || currentUser?.sub;
+      
+      if (userId) {
+        babiesAPI.getAll({ parentId: userId }).then(res => {
+          setBabiesList(res.babies);
+          if (res.babies.length > 0 && !selectedBabyId) setSelectedBabyId(res.babies[0]._id);
+        });
+      }
     } else {
       setBabiesList(babies);
     }
@@ -246,21 +251,33 @@ export function DashboardSidebar(props: DashboardSidebarProps) {
           <div className="px-2 pb-4">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                {selectedBabyId && (
-                  <div className="flex items-center gap-3 p-3 rounded-lg border bg-background hover:bg-accent cursor-pointer transition-colors">
-                    <Avatar className="h-10 w-10">
-                      <AvatarImage src={babiesList.find(b => b._id === selectedBabyId)?.avatar || "/placeholder.svg"} />
-                      <AvatarFallback className={babiesList.find(b => b._id === selectedBabyId)?.gender === "Male" ? "bg-blue-100 text-blue-600" : "bg-pink-100 text-pink-600"}>
-                        {babiesList.find(b => b._id === selectedBabyId)?.firstName?.charAt(0) || "B"}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1 text-left">
-                    <p className="font-medium text-sm">Bé {babiesList.find(b => b._id === selectedBabyId)?.firstName}</p>
-                      <p className="text-xs text-muted-foreground">{formatDate(babiesList.find(b => b._id === selectedBabyId)?.dob)}</p>
-                    </div>
-                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                  </div>
-                )}
+                <div className="flex items-center gap-3 p-3 rounded-lg border bg-background hover:bg-accent cursor-pointer transition-colors">
+                  {selectedBabyId ? (
+                    <>
+                      <Avatar className="h-10 w-10">
+                        <AvatarImage src={babiesList.find(b => b._id === selectedBabyId)?.avatar || "/placeholder.svg"} />
+                        <AvatarFallback className={babiesList.find(b => b._id === selectedBabyId)?.gender === "Male" ? "bg-blue-100 text-blue-600" : "bg-pink-100 text-pink-600"}>
+                          {babiesList.find(b => b._id === selectedBabyId)?.firstName?.charAt(0) || "B"}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1 text-left">
+                        <p className="font-medium text-sm">Bé {babiesList.find(b => b._id === selectedBabyId)?.firstName}</p>
+                        <p className="text-xs text-muted-foreground">{formatDate(babiesList.find(b => b._id === selectedBabyId)?.dob)}</p>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="h-10 w-10 rounded-full bg-dashed border-2 border-dashed border-muted-foreground/30 flex items-center justify-center">
+                        <Baby className="h-5 w-5 text-muted-foreground" />
+                      </div>
+                      <div className="flex-1 text-left">
+                        <p className="font-medium text-sm">Thêm hồ sơ bé</p>
+                        <p className="text-xs text-muted-foreground">Bắt đầu theo dõi bé</p>
+                      </div>
+                    </>
+                  )}
+                  <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                </div>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-[280px]" align="start">
               <div className="p-2">

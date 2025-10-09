@@ -17,6 +17,7 @@ export const babiesAPI = {
     searchPhase?: string;
     page?: number;
     limit?: number;
+    parentId?: string;
   }): Promise<{
     data: any; total: number; babies: Baby[] 
 }> => {
