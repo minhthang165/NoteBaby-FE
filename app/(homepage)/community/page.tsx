@@ -565,7 +565,7 @@ function CommunityPageContent() {
       // 3. Create the comment
       const commentData = {
         Content: newComment.trim(),
-        Post: selectedPost.id, // Updated to match API field name
+        ForumPostId: selectedPost.id, // Updated to match API field name
         File: fileId, // Include file ID if available
         CreatedBy: userId,
         Likes: 0
