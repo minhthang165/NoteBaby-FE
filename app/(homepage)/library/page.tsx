@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label"
 import { Toast } from "@/components/ui/toast"
 import { useToast } from "@/hooks/use-toast"
 import ProtectedRoute from "@/components/layout/protected-route"
+import { getAuthorId } from "@/lib/utils"
 import {
   Search,
   BookOpen,
@@ -324,7 +325,7 @@ function VideoUploadModal({ open, onOpenChange, onUploadSuccess }: {
         let userId = ""; 
         
         // Normally you'd decode the JWT to get the user ID, but for now we'll use the one provided
-        userId = "68dc9bc344092a1355ccf5d6"; // From user request
+       userId = getAuthorId(); // From user request
         
         // Create media file record
         const mediaFileData = {
@@ -522,7 +523,7 @@ function FileUploadModal({ open, onOpenChange, onUploadSuccess }: {
         let userId = ""; 
         
         // Normally you'd decode the JWT to get the user ID, but for now we'll use the one provided
-        userId = "68dc9bc344092a1355ccf5d6"; // From user request
+        userId = getAuthorId(); // From user request
         
         // Create media file record
         const mediaFileData = {
